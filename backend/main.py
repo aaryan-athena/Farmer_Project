@@ -116,7 +116,9 @@ def weather(lat: float, lon: float):
     whole diagnosis."""
     w = agro_context.get_weather(lat, lon)
     if not w or w.get("temp_c") is None:
-        raise HTTPException(status_code=503, detail="Weather service unavailable — try again in a moment")
+        debug = (w or {}).get("_debug_error", "no response")
+        print(f"WEATHER FETCH FAILED (lat={lat}, lon={lon}) -> {debug}")
+        raise HTTPException(status_code=503, detail=f"Weather service unavailable: {debug}")
     return {"weather": w}
 
 

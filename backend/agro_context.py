@@ -199,6 +199,7 @@ def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 2) 
             continue
 
     if raw is None:
+        print(f"WEATHER: Open-Meteo fetch failed for ({lat}, {lon}) after {retries + 1} attempts -> {last_error}")
         # Serve a stale cached value rather than nothing, if we have one.
         if cached:
             return cached[1]
