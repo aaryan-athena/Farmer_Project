@@ -393,13 +393,23 @@ const UI_STR = {
   compared: { en: "Compared only against", hi: "केवल इनकी तुलना में" },
   diseases: { en: "diseases", hi: "रोगों से" },
   unknown: { en: "Unknown", hi: "अज्ञात" },
-  result: { en: "Result", hi: "परिणाम" },
 };
 
+// Only these keys double as DOM element ids for applyStaticI18n() to overwrite via innerHTML.
+// Everything else in UI_STR is looked up programmatically (UI_STR.key[LANG]) and must NOT be
+// treated as an id — e.g. a stray key matching a real id like "result" would wipe out that
+// element's entire subtree.
+const STATIC_TEXT_IDS = [
+  "qCrop", "dropTitle", "dropSub", "cameraBtnLabel", "galleryBtnLabel", "analyzeBtnLabel",
+  "resetBtnLabel", "locHintText", "confLabel", "whatToDoLabel", "locPromptText", "altsLabel",
+  "footerText",
+];
+
 function applyStaticI18n(){
-  Object.entries(UI_STR).forEach(([id, val])=>{
+  STATIC_TEXT_IDS.forEach((id)=>{
     const el = $(id);
-    if(el) el.innerHTML = val[LANG] || val.en;
+    const val = UI_STR[id];
+    if(el && val) el.innerHTML = val[LANG] || val.en;
   });
   $("langToggle").classList.toggle("active-hi", LANG === "hi");
   $("langToggle").textContent = LANG === "hi" ? "हिं / EN" : "EN / हिं";
