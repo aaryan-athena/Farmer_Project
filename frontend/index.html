@@ -170,6 +170,14 @@
   .chip.wide{grid-column:1 / -1}
   .chip .meta{font-size:.78rem;color:var(--muted);margin-top:3px}
 
+  .retry-weather{
+    display:block;margin:0 14px 14px;font-family:var(--body);font-weight:600;font-size:.84rem;
+    border:1px dashed var(--line);background:transparent;color:var(--green-700);
+    padding:9px 12px;border-radius:var(--r-sm);cursor:pointer;width:calc(100% - 28px);
+  }
+  .retry-weather:hover{border-color:var(--green-500);background:#F2F6EC}
+  .retry-weather:disabled{opacity:.6;cursor:not-allowed}
+
   /* Advisory */
   .advice{padding:16px 18px 6px}
   .advice h3{font-family:var(--display);font-weight:700;font-size:1.05rem;margin:0 0 11px;display:flex;align-items:center;gap:8px}
@@ -315,6 +323,9 @@
 
     <div class="divider"></div>
     <div class="chips" id="chips"></div>
+    <button class="retry-weather" type="button" id="retryWeatherBtn" style="display:none">
+      <span id="retryWeatherLabel">Try weather again</span>
+    </button>
 
     <div class="divider"></div>
     <div class="advice">
@@ -353,6 +364,8 @@ let selectedFile = null;
 let selectedCrop = null;
 let lastResult = null;      // re-rendered on language switch so the result stays in sync
 let lastHadLocation = false;
+let lastLat = null, lastLon = null;   // kept so "Try weather again" can retry without re-diagnosing
+let weatherRetryState = "idle";       // idle | loading | failed
 
 /* ---------- language ---------- */
 let LANG = localStorage.getItem("kisaanmitra_lang") || "en";
@@ -373,6 +386,9 @@ const UI_STR = {
                    hi: "अपने खेत के लिए मिट्टी और मौसम पर आधारित सलाह पाने हेतु स्थान की अनुमति दें और दोबारा जांच करें।" },
   altsLabel: { en: "Other possibilities", hi: "अन्य संभावनाएं" },
   footerText: { en: "KisaanMitra — AI Crop Disease Detection", hi: "किसानमित्र — एआई फसल रोग पहचान" },
+  retryWeatherLabel: { en: "Try weather again", hi: "मौसम फिर से लाएं" },
+  retryWeatherLoading: { en: "Fetching weather…", hi: "मौसम लाया जा रहा है…" },
+  retryWeatherFailed: { en: "Still unavailable — try again", hi: "अभी भी उपलब्ध नहीं — फिर कोशिश करें" },
   cropEyebrowDefault: { en: "Crop", hi: "फसल" },
   pickCropFirstTitle: { en: "Pick a crop first", hi: "पहले फसल चुनें" },
   pickCropFirstBodyPhoto: { en: "Tap the crop you're checking, then add the photo.", hi: "जिस फसल की जांच कर रहे हैं उसे चुनें, फिर फोटो जोड़ें।" },
@@ -550,6 +566,8 @@ analyzeBtn.addEventListener("click", async ()=>{
     }
     const data = await res.json();
     lastResult = data; lastHadLocation = lat != null;
+    lastLat = lat != null ? lat : null; lastLon = lon != null ? lon : null;
+    weatherRetryState = "idle";
     renderResult(data, lat != null);
   }catch(err){
     clearTimeout(slow);
@@ -777,7 +795,8 @@ const CHIP_STR = {
 function renderChips(ctx){
   const chips = $("chips");
   chips.innerHTML = "";
-  if(!ctx){ chips.style.display="none"; return; }
+  const hasWeather = !!(ctx && ctx.weather && ctx.weather.temp_c != null);
+  if(!ctx){ chips.style.display="none"; updateRetryWeatherButton(hasWeather); return; }
   chips.style.display="grid";
 
   if(ctx.soil){
@@ -807,7 +826,40 @@ function renderChips(ctx){
       </div>`);
   }
   if(!chips.children.length) chips.style.display="none";
+  updateRetryWeatherButton(hasWeather);
 }
+
+function updateRetryWeatherButton(hasWeather){
+  const btn = $("retryWeatherBtn");
+  const canRetry = !hasWeather && lastLat != null && lastLon != null;
+  btn.style.display = canRetry ? "block" : "none";
+  if(!canRetry) return;
+  const label = weatherRetryState === "loading" ? UI_STR.retryWeatherLoading[LANG]
+              : weatherRetryState === "failed" ? UI_STR.retryWeatherFailed[LANG]
+              : UI_STR.retryWeatherLabel[LANG];
+  $("retryWeatherLabel").textContent = label;
+  btn.disabled = weatherRetryState === "loading";
+}
+
+$("retryWeatherBtn").addEventListener("click", async ()=>{
+  if(lastLat == null || lastLon == null) return;
+  weatherRetryState = "loading";
+  updateRetryWeatherButton(false);
+  try{
+    const res = await fetch(`${API_BASE}/weather?lat=${lastLat}&lon=${lastLon}`);
+    if(!res.ok) throw new Error("weather retry failed");
+    const data = await res.json();
+    if(lastResult){
+      lastResult.context = lastResult.context || {};
+      lastResult.context.weather = data.weather;
+    }
+    weatherRetryState = "idle";
+    renderChips(lastResult ? lastResult.context : null);
+  }catch(e){
+    weatherRetryState = "failed";
+    updateRetryWeatherButton(false);
+  }
+});
 
 function renderAlts(top3){
   const block = $("altsBlock"), wrap = $("alts");

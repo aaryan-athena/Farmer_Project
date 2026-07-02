@@ -109,6 +109,17 @@ def health():
     }
 
 
+@app.get("/weather")
+def weather(lat: float, lon: float):
+    """Standalone weather lookup so the frontend can retry just the weather
+    fetch (e.g. after a transient upstream failure) without re-running the
+    whole diagnosis."""
+    w = agro_context.get_weather(lat, lon)
+    if not w or w.get("temp_c") is None:
+        raise HTTPException(status_code=503, detail="Weather service unavailable — try again in a moment")
+    return {"weather": w}
+
+
 @app.post("/predict")
 async def predict(
     file: UploadFile = File(...),
