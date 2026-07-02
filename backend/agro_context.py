@@ -18,6 +18,7 @@ output joins directly onto whatever /predict already returns.
 from __future__ import annotations
 import json
 import math
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -159,7 +160,16 @@ _WEATHER_CACHE: dict = {}
 _WEATHER_CACHE_TTL = 900  # 15 minutes
 
 
-def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 2) -> dict | None:
+# Render's outbound IP is shared across many customers' services, so Open-Meteo's
+# free-tier rate limit (429) can trip even though *our* call volume is tiny. Once
+# that happens, a global cooldown skips the network call entirely for a while —
+# retrying immediately just gets rate-limited again and burns the request's
+# timeout budget (and every "Try weather again" click) for nothing.
+_RATE_LIMITED_UNTIL = 0.0
+_RATE_LIMIT_COOLDOWN = 60  # seconds, used when Open-Meteo sends no Retry-After
+
+
+def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 1) -> dict | None:
     """Fetch current conditions + short forecast from Open-Meteo (no API key, no signup).
 
     Open-Meteo's weather_code follows the WMO scheme the frontend's icon table
@@ -170,11 +180,19 @@ def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 2) 
     Cached in-process for 15 minutes per ~1 km grid cell so repeat requests
     from the same field don't hammer the service."""
     import time
+    global _RATE_LIMITED_UNTIL
     key = (round(lat, 2), round(lon, 2))
     now = time.time()
     cached = _WEATHER_CACHE.get(key)
     if cached and (now - cached[0]) < _WEATHER_CACHE_TTL:
         return cached[1]
+
+    if now < _RATE_LIMITED_UNTIL:
+        wait = round(_RATE_LIMITED_UNTIL - now)
+        print(f"WEATHER: skipping fetch, rate-limited by Open-Meteo for {wait}s more")
+        if cached:
+            return cached[1]
+        return {"_debug_error": f"Rate limited by Open-Meteo — retry in ~{wait}s"}
 
     params = {
         "latitude": lat,
@@ -194,12 +212,21 @@ def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 2) 
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 raw = json.loads(resp.read().decode("utf-8"))
             break
+        except urllib.error.HTTPError as e:
+            last_error = f"HTTPError: HTTP Error {e.code}: {e.reason}"
+            if e.code == 429:
+                retry_after = e.headers.get("Retry-After") if e.headers else None
+                cooldown = int(retry_after) if retry_after and retry_after.isdigit() else _RATE_LIMIT_COOLDOWN
+                _RATE_LIMITED_UNTIL = now + cooldown
+                print(f"WEATHER: Open-Meteo returned 429 — backing off for {cooldown}s")
+                break  # retrying immediately would just hit the same rate limit again
+            continue
         except Exception as e:
             last_error = f"{type(e).__name__}: {e}"
             continue
 
     if raw is None:
-        print(f"WEATHER: Open-Meteo fetch failed for ({lat}, {lon}) after {retries + 1} attempts -> {last_error}")
+        print(f"WEATHER: Open-Meteo fetch failed for ({lat}, {lon}) -> {last_error}")
         # Serve a stale cached value rather than nothing, if we have one.
         if cached:
             return cached[1]
