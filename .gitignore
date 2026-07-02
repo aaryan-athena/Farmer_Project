@@ -1,0 +1,10 @@
+*.zip
+archive/
+archive (1)/
+Crop Diseases Dataset/
+Training Data/
+*.h5
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.env

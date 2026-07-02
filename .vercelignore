@@ -1,0 +1,5 @@
+backend/
+notebooks/
+*.ipynb
+*.docx
+*.pdf
