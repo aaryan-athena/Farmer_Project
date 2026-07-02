@@ -78,19 +78,36 @@ frontend/index.html  --POST /predict (image + crop + lat/lon)-->  backend/main.p
   as the nearest reference point.
 
 ### Weather data
-- Fetched from **wttr.in** (`https://wttr.in/{lat},{lon}?format=j1`) — free,
-  keyless, called via Python's stdlib `urllib` so it adds no dependency.
-- Pulls current conditions (temperature, humidity, precipitation) plus a
-  short forecast, and sums expected rainfall over the next 48 hours.
+- Fetched from **OpenWeatherMap's 5-day/3-hour forecast endpoint**, using
+  `urllib` (stdlib, no new dependency). Requires the `OPENWEATHERMAP_API_KEY`
+  environment variable — see [Environment variables](#environment-variables--keys-to-update-on-deploy) below.
+- This project originally used wttr.in, then Open-Meteo, both keyless. Both
+  turned out to be unreliable in production: Render's outbound IP is shared
+  across many customers, so their shared-IP free tiers would intermittently
+  429 (rate limit) or time out for reasons unrelated to this app's own (tiny)
+  call volume. OpenWeatherMap's key gives this app its own quota (free tier:
+  1,000 calls/day) that other Render tenants can't exhaust.
+- The forecast's first 3-hour entry is used as "current" conditions
+  (temperature, humidity, precipitation); the next 16 entries (3h × 16 = 48h)
+  are summed for expected rainfall. OpenWeatherMap's own condition codes are
+  mapped to the WMO code scheme (`_owm_code_to_wmo`) so the frontend's
+  icon/description table and its Hindi translations don't need to know which
+  provider is behind them.
 - Responses are cached in-process per ~1km grid cell for 15 minutes
   (`_WEATHER_CACHE_TTL`), so repeated diagnoses from the same field don't
-  hammer the upstream service.
+  spend extra calls against the quota. On a 429, a global cooldown
+  (`_RATE_LIMITED_UNTIL`) skips the network call entirely for a while instead
+  of retrying straight into the same limit.
 - Combined with the diagnosed disease's optimal temperature window, this
   drives a simple **disease pressure heuristic** (`assess_disease_pressure`):
   `high` / `moderate` / `low` based on how closely current temperature,
   humidity, and wetness match conditions the pathogen favors. Healthy and
   viral classes are always `n/a` (viral spread isn't weather-driven the same
   way; healthy has no pathogen to score).
+- If the weather chip is missing from a result (fetch failed), the frontend
+  shows a "Try weather again" button that calls `GET /weather?lat=&lon=`
+  directly — a lightweight endpoint that re-fetches just the weather without
+  re-running the full diagnosis.
 
 ### Advisory assembly
 `build_advisory()` combines the three signals above into a single response:
@@ -111,13 +128,17 @@ uvicorn main:app --reload
 ```
 
 ## Environment variables / keys to update on deploy
-No API keys are used anywhere in this project — weather comes from wttr.in and
-soil data is an offline lookup table, both keyless. The one thing that **must**
-be updated when redeploying is:
-
+- **`OPENWEATHERMAP_API_KEY`** (backend, required for weather) — get a free
+  key at https://openweathermap.org/api (free tier: 1,000 calls/day, no
+  credit card) and set it as an environment variable on Render (Dashboard →
+  your service → Environment). Without it, `/predict` and `/weather` still
+  work, but responses have no weather data (soil-only) and the frontend shows
+  the "Try weather again" button. There is no `.env` file in this repo —
+  set it directly in Render's dashboard, not in code.
 - **`frontend/index.html`** — the `API_BASE` constant (top of the `<script>`
   block) is hardcoded to the current Render backend URL
-  (`https://kisaanmitra-api-a4g7.onrender.com`). If you redeploy the backend
+  (`https://farmer-project-9yfw.onrender.com`). If you redeploy the backend
   to a new host/URL, update this value before deploying the frontend.
 
-There is no `.env` file and no secrets in this repo.
+Soil data is a fully offline lookup table and needs no key. No other API keys
+or secrets are used anywhere in this project.

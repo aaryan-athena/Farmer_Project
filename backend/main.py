@@ -106,6 +106,7 @@ def health():
         "status": "ok",
         "model_loaded": model is not None,
         "model_error": model_error,
+        "weather_configured": bool(agro_context.OWM_API_KEY),
     }
 
 

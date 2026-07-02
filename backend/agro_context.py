@@ -6,8 +6,13 @@ this builds a context-aware advisory by combining:
 
     1. Soil      -> offline nearest-reference-point lookup over Indian
                     agricultural regions (no external API; ships with the app).
-    2. Weather   -> Open-Meteo current + short forecast (free, no API key).
-                    Uses stdlib urllib so it adds NO new requirements.
+    2. Weather   -> OpenWeatherMap current + 5-day/3-hour forecast. Requires
+                    the OPENWEATHERMAP_API_KEY environment variable (free tier:
+                    https://openweathermap.org/api). Uses a per-account API key
+                    rather than a keyless shared-IP service — both wttr.in and
+                    Open-Meteo turned out to be unreliable on Render because
+                    its outbound IP is shared across many customers and trips
+                    shared rate limits unrelated to this app's own call volume.
     3. Disease   -> per-class plant-pathology metadata + a weather-driven
                     "disease pressure" heuristic.
 
@@ -18,6 +23,7 @@ output joins directly onto whatever /predict already returns.
 from __future__ import annotations
 import json
 import math
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -150,35 +156,69 @@ def get_soil(lat: float, lon: float) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# 2. WEATHER  —  Open-Meteo (free, keyless, stdlib only)
+# 2. WEATHER  —  OpenWeatherMap (free tier, requires an API key)
 # --------------------------------------------------------------------------- #
 
-OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+OWM_API_KEY = os.environ.get("OPENWEATHERMAP_API_KEY")
+# 5 day / 3 hour forecast endpoint — one call gives us both "current" (its
+# first entry) and enough future entries to sum a 48h rain figure, so we only
+# spend one call per lookup against the free-tier quota.
+OWM_FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast"
+
 # In-process cache: {(lat_rounded, lon_rounded): (fetched_at_epoch, weather_dict)}
 # Coordinates are rounded to ~1 km so nearby diagnoses share one fetch.
 _WEATHER_CACHE: dict = {}
 _WEATHER_CACHE_TTL = 900  # 15 minutes
 
-
-# Render's outbound IP is shared across many customers' services, so Open-Meteo's
-# free-tier rate limit (429) can trip even though *our* call volume is tiny. Once
-# that happens, a global cooldown skips the network call entirely for a while —
-# retrying immediately just gets rate-limited again and burns the request's
-# timeout budget (and every "Try weather again" click) for nothing.
+# A per-account API key quota shouldn't get rate-limited by *other* apps' traffic
+# the way Open-Meteo's shared-IP free tier did, but OpenWeatherMap can still
+# return 429 if this app's own volume briefly exceeds its plan. A cooldown skips
+# the network call entirely rather than retrying straight into the same limit.
 _RATE_LIMITED_UNTIL = 0.0
-_RATE_LIMIT_COOLDOWN = 60  # seconds, used when Open-Meteo sends no Retry-After
+_RATE_LIMIT_COOLDOWN = 60  # seconds, used when OpenWeatherMap sends no Retry-After
+
+
+def _owm_code_to_wmo(owm_id: int | None) -> int | None:
+    """Map an OpenWeatherMap condition code to the closest WMO code, since the
+    frontend's icon/description table (and its Hindi translations) are keyed
+    by WMO codes. Coarse by design — this only drives which emoji/label shows."""
+    if owm_id is None:
+        return None
+    if 200 <= owm_id <= 232:
+        return 95  # thunderstorm
+    if 300 <= owm_id <= 321:
+        return 53  # drizzle
+    if 500 <= owm_id <= 501:
+        return 61  # light/moderate rain
+    if 502 <= owm_id <= 504:
+        return 65  # heavy rain
+    if owm_id == 511:
+        return 66  # freezing rain
+    if 520 <= owm_id <= 531:
+        return 80  # rain showers
+    if owm_id in (600, 601, 602):
+        return {600: 71, 601: 73, 602: 75}[owm_id]  # snow
+    if 611 <= owm_id <= 622:
+        return 71  # sleet / snow showers
+    if 701 <= owm_id <= 781:
+        return 45  # mist/fog/haze/dust/smoke/sand/ash/squall/tornado
+    if owm_id == 800:
+        return 0   # clear
+    if owm_id == 801:
+        return 1   # few clouds
+    if owm_id == 802:
+        return 2   # scattered clouds
+    if owm_id in (803, 804):
+        return 3   # broken/overcast clouds
+    return 3
 
 
 def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 1) -> dict | None:
-    """Fetch current conditions + short forecast from Open-Meteo (no API key, no signup).
+    """Fetch current conditions + short forecast from OpenWeatherMap.
 
-    Open-Meteo's weather_code follows the WMO scheme the frontend's icon table
-    already expects, and its uptime/latency are far more consistent than
-    wttr.in (which this used to call and would intermittently time out,
-    causing the weather chip to silently disappear from results).
-
+    Requires OPENWEATHERMAP_API_KEY (free tier: https://openweathermap.org/api).
     Cached in-process for 15 minutes per ~1 km grid cell so repeat requests
-    from the same field don't hammer the service."""
+    from the same field don't spend extra calls against the free-tier quota."""
     import time
     global _RATE_LIMITED_UNTIL
     key = (round(lat, 2), round(lon, 2))
@@ -187,22 +227,18 @@ def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 1) 
     if cached and (now - cached[0]) < _WEATHER_CACHE_TTL:
         return cached[1]
 
+    if not OWM_API_KEY:
+        return {"_debug_error": "OPENWEATHERMAP_API_KEY is not set"}
+
     if now < _RATE_LIMITED_UNTIL:
         wait = round(_RATE_LIMITED_UNTIL - now)
-        print(f"WEATHER: skipping fetch, rate-limited by Open-Meteo for {wait}s more")
+        print(f"WEATHER: skipping fetch, rate-limited by OpenWeatherMap for {wait}s more")
         if cached:
             return cached[1]
-        return {"_debug_error": f"Rate limited by Open-Meteo — retry in ~{wait}s"}
+        return {"_debug_error": f"Rate limited by OpenWeatherMap — retry in ~{wait}s"}
 
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "current": "temperature_2m,relative_humidity_2m,precipitation,weather_code",
-        "hourly": "precipitation",
-        "forecast_days": 3,
-        "timezone": "auto",
-    }
-    url = f"{OPEN_METEO_URL}?{urllib.parse.urlencode(params)}"
+    params = {"lat": lat, "lon": lon, "appid": OWM_API_KEY, "units": "metric"}
+    url = f"{OWM_FORECAST_URL}?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(url, headers={"User-Agent": "KisaanMitra/1.0"})
 
     raw = None
@@ -218,34 +254,42 @@ def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 1) 
                 retry_after = e.headers.get("Retry-After") if e.headers else None
                 cooldown = int(retry_after) if retry_after and retry_after.isdigit() else _RATE_LIMIT_COOLDOWN
                 _RATE_LIMITED_UNTIL = now + cooldown
-                print(f"WEATHER: Open-Meteo returned 429 — backing off for {cooldown}s")
+                print(f"WEATHER: OpenWeatherMap returned 429 — backing off for {cooldown}s")
                 break  # retrying immediately would just hit the same rate limit again
+            if e.code == 401:
+                print("WEATHER: OpenWeatherMap rejected the API key (401) — check OPENWEATHERMAP_API_KEY")
+                break
             continue
         except Exception as e:
             last_error = f"{type(e).__name__}: {e}"
             continue
 
     if raw is None:
-        print(f"WEATHER: Open-Meteo fetch failed for ({lat}, {lon}) -> {last_error}")
+        print(f"WEATHER: OpenWeatherMap fetch failed for ({lat}, {lon}) -> {last_error}")
         # Serve a stale cached value rather than nothing, if we have one.
         if cached:
             return cached[1]
         return {"_debug_error": last_error}
 
     try:
-        cur = raw["current"]
-        temp_c = cur.get("temperature_2m")
-        humidity = cur.get("relative_humidity_2m")
-        precip_now = float(cur.get("precipitation") or 0)
-        weather_code = cur.get("weather_code")
+        entries = raw.get("list") or []
+        if not entries:
+            return {"_debug_error": "OpenWeatherMap returned no forecast entries"}
 
-        # Sum hourly precipitation for the 48 hours starting at the current hour.
-        hourly = raw.get("hourly", {})
-        times = hourly.get("time", [])
-        precips = hourly.get("precipitation", [])
-        current_time = cur.get("time", "")
-        start = next((i for i, t in enumerate(times) if t >= current_time), 0)
-        rain_next_48h = round(sum(precips[start:start + 48]), 1)
+        cur = entries[0]
+        main = cur.get("main", {})
+        temp_c = main.get("temp")
+        humidity = main.get("humidity")
+        precip_now = float((cur.get("rain") or {}).get("3h", 0) or (cur.get("snow") or {}).get("3h", 0) or 0)
+        owm_id = ((cur.get("weather") or [{}])[0]).get("id")
+        weather_code = _owm_code_to_wmo(owm_id)
+
+        # Forecast entries are 3-hourly; 16 of them = the next 48 hours.
+        rain_next_48h = 0.0
+        for e in entries[:16]:
+            rain_next_48h += float((e.get("rain") or {}).get("3h", 0) or 0)
+            rain_next_48h += float((e.get("snow") or {}).get("3h", 0) or 0)  # already mm of water-equivalent
+        rain_next_48h = round(rain_next_48h, 1)
     except (KeyError, ValueError, TypeError, IndexError) as e:
         return {"_debug_error": f"ParseError: {type(e).__name__}: {e}"}
 
