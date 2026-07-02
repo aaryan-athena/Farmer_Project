@@ -159,8 +159,13 @@ _WEATHER_CACHE: dict = {}
 _WEATHER_CACHE_TTL = 900  # 15 minutes
 
 
-def get_weather(lat: float, lon: float, timeout: float = 8.0) -> dict | None:
-    """Fetch current conditions + 3-day forecast from wttr.in (no API key, no signup).
+def get_weather(lat: float, lon: float, timeout: float = 8.0, retries: int = 2) -> dict | None:
+    """Fetch current conditions + short forecast from Open-Meteo (no API key, no signup).
+
+    Open-Meteo's weather_code follows the WMO scheme the frontend's icon table
+    already expects, and its uptime/latency are far more consistent than
+    wttr.in (which this used to call and would intermittently time out,
+    causing the weather chip to silently disappear from results).
 
     Cached in-process for 15 minutes per ~1 km grid cell so repeat requests
     from the same field don't hammer the service."""
@@ -171,31 +176,48 @@ def get_weather(lat: float, lon: float, timeout: float = 8.0) -> dict | None:
     if cached and (now - cached[0]) < _WEATHER_CACHE_TTL:
         return cached[1]
 
-    # wttr.in returns full JSON with current + 3-day forecast at ?format=j1
-    url = f"https://wttr.in/{lat},{lon}?format=j1"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "current": "temperature_2m,relative_humidity_2m,precipitation,weather_code",
+        "hourly": "precipitation",
+        "forecast_days": 3,
+        "timezone": "auto",
+    }
+    url = f"{OPEN_METEO_URL}?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(url, headers={"User-Agent": "KisaanMitra/1.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw = json.loads(resp.read().decode("utf-8"))
-    except Exception as e:
-        # TEMP DIAGNOSTIC — remove once weather is confirmed stable.
-        return {"_debug_error": f"{type(e).__name__}: {e}"}
+
+    raw = None
+    last_error = None
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                raw = json.loads(resp.read().decode("utf-8"))
+            break
+        except Exception as e:
+            last_error = f"{type(e).__name__}: {e}"
+            continue
+
+    if raw is None:
+        # Serve a stale cached value rather than nothing, if we have one.
+        if cached:
+            return cached[1]
+        return {"_debug_error": last_error}
 
     try:
-        cur = raw["current_condition"][0]
-        temp_c = float(cur.get("temp_C")) if cur.get("temp_C") is not None else None
-        humidity = float(cur.get("humidity")) if cur.get("humidity") is not None else None
-        precip_now = float(cur.get("precipMM") or 0)
-        weather_code = int(cur.get("weatherCode")) if cur.get("weatherCode") else None
+        cur = raw["current"]
+        temp_c = cur.get("temperature_2m")
+        humidity = cur.get("relative_humidity_2m")
+        precip_now = float(cur.get("precipitation") or 0)
+        weather_code = cur.get("weather_code")
 
-        # Sum tomorrow + day after (indices 1 and 2) for the "next 48h" figure
-        days = raw.get("weather", [])
-        rain_next_48h = 0.0
-        for d in days[1:3]:
-            rain_next_48h += float(d.get("totalSnow_cm") or 0) * 10  # snow → mm equivalent
-            for hourly in d.get("hourly", []):
-                rain_next_48h += float(hourly.get("precipMM") or 0)
-        rain_next_48h = round(rain_next_48h, 1)
+        # Sum hourly precipitation for the 48 hours starting at the current hour.
+        hourly = raw.get("hourly", {})
+        times = hourly.get("time", [])
+        precips = hourly.get("precipitation", [])
+        current_time = cur.get("time", "")
+        start = next((i for i, t in enumerate(times) if t >= current_time), 0)
+        rain_next_48h = round(sum(precips[start:start + 48]), 1)
     except (KeyError, ValueError, TypeError, IndexError) as e:
         return {"_debug_error": f"ParseError: {type(e).__name__}: {e}"}
 
