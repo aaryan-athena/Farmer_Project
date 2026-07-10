@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>KisaanMitra — Crop Disease Detection</title>
+<title>KisaanMitra — Your Crop's Health Companion</title>
+<meta name="description" content="KisaanMitra spots crop disease from a leaf photo and gives weather- and soil-aware advice, in Hindi and English. Free for every farmer." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -13,211 +14,242 @@
     --ink:#1B2A1E; --muted:#5E6B57; --line:#E5DDC9;
     --green-900:#14512F; --green-700:#1E7A47; --green-500:#2E9E5B;
     --gold:#D7A129; --gold-deep:#A9760E;
-    --clay:#B5572E; --good:#2E7D32; --warn:#D98A1E; --alert:#C0392B;
+    --clay:#B5572E; --good:#2E7D32;
     --r:18px; --r-sm:12px;
     --shadow:0 1px 2px rgba(20,40,25,.04), 0 8px 28px rgba(20,40,25,.07);
+    --shadow-lg:0 2px 4px rgba(20,40,25,.05), 0 18px 48px rgba(20,40,25,.12);
     --display:"Bricolage Grotesque", system-ui, sans-serif;
     --body:"IBM Plex Sans","IBM Plex Sans Devanagari", system-ui, sans-serif;
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   html,body{margin:0;padding:0}
   body{
     font-family:var(--body); color:var(--ink); background:var(--bg);
     -webkit-font-smoothing:antialiased; line-height:1.55;
-    background-image:
-      radial-gradient(120% 80% at 50% -10%, rgba(46,158,91,.10), transparent 60%);
-    min-height:100vh;
+    background-image:radial-gradient(120% 70% at 50% -10%, rgba(46,158,91,.12), transparent 60%);
   }
   .brandbar{height:5px;background:linear-gradient(90deg,var(--green-900),var(--green-500) 45%,var(--gold))}
-  .wrap{max-width:560px;margin:0 auto;padding:22px 18px 64px}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
 
-  /* Header */
-  header{display:flex;align-items:center;gap:13px;margin:8px 2px 22px}
+  /* ---------- nav ---------- */
+  nav{display:flex;align-items:center;gap:12px;padding:18px 0}
   .mark{
-    width:46px;height:46px;border-radius:13px;flex:0 0 auto;
+    width:42px;height:42px;border-radius:12px;flex:0 0 auto;
     background:linear-gradient(150deg,var(--green-700),var(--green-900));
     display:grid;place-items:center;box-shadow:var(--shadow);
   }
-  .mark svg{width:26px;height:26px}
-  .titles h1{font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:-.02em;margin:0;line-height:1}
-  .titles .sub{font-size:.84rem;color:var(--muted);margin-top:3px;font-weight:500}
+  .mark svg{width:24px;height:24px}
+  .brand{font-family:var(--display);font-weight:800;font-size:1.28rem;letter-spacing:-.02em}
+  nav .spacer{margin-left:auto}
   .lang-toggle{
-    margin-left:auto;flex:0 0 auto;font-family:var(--body);font-weight:700;font-size:.78rem;
+    font-family:var(--body);font-weight:700;font-size:.78rem;
     border:1px solid var(--line);background:#fff;color:var(--green-900);
     padding:8px 12px;border-radius:999px;cursor:pointer;
   }
   .lang-toggle:hover{border-color:var(--green-500)}
   .lang-toggle.active-hi{background:linear-gradient(150deg,var(--green-700),var(--green-900));color:#fff;border-color:transparent}
-
-  /* Upload card — the hero */
-  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
-
-  /* Crop selector — declared before the photo so prediction can be narrowed to one crop */
-  .crop-select{padding:16px 16px 0}
-  .crop-select .q{font-family:var(--display);font-weight:700;font-size:1.04rem;margin:0 0 2px;letter-spacing:-.01em}
-  .crop-select .qhi{font-size:.82rem;color:var(--muted);margin:0 0 13px}
-  .crop-grid{display:flex;flex-wrap:wrap;gap:9px}
-  .crop-btn{
-    font-family:var(--body);font-weight:600;font-size:.9rem;cursor:pointer;
-    border:1px solid var(--line);background:#fff;color:var(--green-900);
-    padding:9px 14px;border-radius:999px;display:inline-flex;flex-direction:column;align-items:center;
-    line-height:1.18;transition:border-color .15s, background .15s, color .15s;
+  .nav-cta{
+    font-family:var(--display);font-weight:700;font-size:.9rem;text-decoration:none;
+    background:linear-gradient(150deg,var(--green-700),var(--green-900));color:#fff;
+    padding:10px 18px;border-radius:999px;letter-spacing:-.01em;white-space:nowrap;
   }
-  .crop-btn .hi{font-size:.72rem;color:var(--muted);font-weight:500;margin-top:1px}
-  .crop-btn:hover{border-color:var(--green-500)}
-  .crop-btn.active{background:linear-gradient(150deg,var(--green-700),var(--green-900));color:#fff;border-color:transparent}
-  .crop-btn.active .hi{color:rgba(255,255,255,.82)}
-  .crop-divider{height:1px;background:var(--line);margin:15px 0 0}
+  .nav-cta:hover{filter:brightness(1.08)}
+  @media (max-width:560px){ .nav-cta{display:none} }
 
-  .drop{
-    position:relative;border:2px dashed #CDBE97;border-radius:var(--r);
-    background:var(--paper-2);padding:34px 22px;text-align:center;cursor:pointer;
-    transition:border-color .18s, background .18s, opacity .18s;overflow:hidden;
+  /* ---------- hero ---------- */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:center;padding:44px 0 60px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:.76rem;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);
+    background:#FCF6E6;border:1px solid #EBD9A6;border-radius:999px;padding:6px 14px;margin-bottom:18px;
   }
-  .drop:hover,.drop.drag{border-color:var(--green-500);background:#F2F6EC}
-  .drop:focus-visible{outline:3px solid var(--green-500);outline-offset:3px}
-  /* Locked until a crop is chosen — gating is what makes cross-crop errors impossible */
-  .drop.locked{opacity:.45;pointer-events:none;filter:grayscale(.35)}
-  .drop .lockhint{display:none;margin-top:13px;font-size:.82rem;color:var(--gold-deep);font-weight:600}
-  .drop.locked .lockhint{display:block}
-  .drop.locked .ghost-btns{visibility:hidden}
-  .drop .leaf{width:52px;height:52px;margin:0 auto 12px;color:var(--green-700)}
-  .drop h2{font-family:var(--display);font-weight:700;font-size:1.12rem;margin:0 0 4px}
-  .drop p{margin:0;color:var(--muted);font-size:.9rem}
-  .drop .or{display:inline-block;margin-top:14px;font-size:.82rem;color:var(--muted)}
-  .ghost-btns{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-  .gbtn{
-    font-family:var(--body);font-weight:600;font-size:.86rem;
-    border:1px solid var(--line);background:#fff;color:var(--green-900);
-    padding:9px 15px;border-radius:999px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--green-500)}
+  h1.headline{
+    font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.04;
+    font-size:clamp(2.3rem, 5.4vw, 3.6rem);margin:0 0 14px;
   }
-  .gbtn:hover{border-color:var(--green-500)}
-  .gbtn svg{width:16px;height:16px}
+  h1.headline em{font-style:normal;color:var(--green-700);position:relative;white-space:nowrap}
+  h1.headline em::after{
+    content:"";position:absolute;left:0;right:0;bottom:.04em;height:.28em;z-index:-1;
+    background:linear-gradient(90deg, rgba(215,161,41,.38), rgba(46,158,91,.25));border-radius:4px;
+  }
+  .hero .lede{font-size:1.06rem;color:var(--muted);margin:0 0 8px;max-width:44ch}
+  .hero .lede-hi{font-size:.92rem;color:var(--green-900);font-weight:500;margin:0 0 26px}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btn-hero{
+    font-family:var(--display);font-weight:700;font-size:1.06rem;text-decoration:none;letter-spacing:-.01em;
+    background:linear-gradient(150deg,var(--green-700),var(--green-900));color:#fff;
+    padding:15px 28px;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:10px;
+    box-shadow:0 6px 20px rgba(20,81,47,.28);transition:transform .15s, box-shadow .15s, filter .15s;
+  }
+  .btn-hero:hover{filter:brightness(1.07);transform:translateY(-1px);box-shadow:0 9px 26px rgba(20,81,47,.34)}
+  .btn-hero svg{width:19px;height:19px}
+  .btn-quiet{
+    font-family:var(--body);font-weight:600;font-size:.95rem;text-decoration:none;color:var(--green-900);
+    border:1px solid var(--line);background:#fff;padding:14px 22px;border-radius:var(--r-sm);
+  }
+  .btn-quiet:hover{border-color:var(--green-500)}
+  .trust{display:flex;gap:20px;flex-wrap:wrap;margin-top:26px;font-size:.82rem;color:var(--muted)}
+  .trust span{display:inline-flex;align-items:center;gap:7px}
+  .trust svg{width:15px;height:15px;color:var(--green-700);flex:0 0 auto}
 
-  /* Preview */
-  .preview{display:none;padding:14px}
-  .preview.show{display:block}
-  .frame{position:relative;border-radius:var(--r-sm);overflow:hidden;background:#000;aspect-ratio:4/3}
-  .frame img{width:100%;height:100%;object-fit:cover;display:block}
-  .scanline{
+  /* ---------- hero visual: a faux diagnosis card ---------- */
+  .hero-visual{position:relative;display:flex;justify-content:center}
+  .glow{
+    position:absolute;inset:8% 4%;border-radius:50%;z-index:0;
+    background:radial-gradient(closest-side, rgba(46,158,91,.16), transparent);
+  }
+  .mock{
+    position:relative;z-index:1;width:min(330px,100%);
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow-lg);padding:16px;transform:rotate(1.6deg);
+    animation:float 7s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:rotate(1.6deg) translateY(0)}50%{transform:rotate(1.6deg) translateY(-9px)}}
+  .mock .shot{
+    border-radius:var(--r-sm);aspect-ratio:4/3.1;position:relative;overflow:hidden;
+    background:
+      radial-gradient(85% 120% at 30% 20%, #3C7A3E 0%, #2C5E31 45%, #1E4525 100%);
+  }
+  /* CSS leaf */
+  .mock .shot .leafshape{
+    position:absolute;left:50%;top:52%;width:66%;aspect-ratio:1/1.6;transform:translate(-50%,-50%) rotate(24deg);
+    background:linear-gradient(160deg,#7FBF62 0%, #4E9A44 55%, #357434 100%);
+    border-radius:100% 0 100% 0;box-shadow:inset 0 0 24px rgba(0,0,0,.22);
+  }
+  .mock .shot .leafshape::before{
+    content:"";position:absolute;left:50%;top:6%;bottom:6%;width:2.5px;transform:translateX(-50%) ;
+    background:rgba(255,255,255,.34);border-radius:99px;
+  }
+  .mock .shot .spot{position:absolute;border-radius:50%;background:radial-gradient(circle, #A9760E 0%, #7A5210 60%, transparent 72%);opacity:.9}
+  .mock .shot .s1{width:26px;height:26px;left:44%;top:34%}
+  .mock .shot .s2{width:16px;height:16px;left:58%;top:52%}
+  .mock .shot .s3{width:12px;height:12px;left:38%;top:58%}
+  .mock .scanline{
     position:absolute;left:0;right:0;height:3px;top:0;
     background:linear-gradient(90deg,transparent,var(--green-500),var(--gold),transparent);
-    box-shadow:0 0 16px 3px rgba(46,158,91,.6);opacity:0;
+    box-shadow:0 0 16px 3px rgba(46,158,91,.65);
+    animation:scan 3.4s ease-in-out infinite;
   }
-  .analyzing .scanline{opacity:1;animation:scan 1.5s ease-in-out infinite}
-  .analyzing .frame::after{content:"";position:absolute;inset:0;background:rgba(20,40,25,.28)}
-  @keyframes scan{0%{top:0}50%{top:calc(100% - 3px)}100%{top:0}}
-
-  .crop-tag{margin:12px 2px 0;font-size:.82rem;color:var(--muted);text-align:center}
-  .crop-tag b{color:var(--green-900);font-weight:600}
-  .crop-tag a{color:var(--green-700);font-weight:600;cursor:pointer;text-decoration:underline;margin-left:6px}
-
-  .actions{display:flex;gap:10px;margin-top:13px}
-  .btn{
-    flex:1;font-family:var(--display);font-weight:700;font-size:1rem;
-    border:none;border-radius:var(--r-sm);padding:14px;cursor:pointer;letter-spacing:-.01em;
-    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  @keyframes scan{0%{top:4%}50%{top:94%}100%{top:4%}}
+  .mock .mrow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-top:14px}
+  .mock .m-eyebrow{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700}
+  .mock .m-disease{font-family:var(--display);font-weight:800;font-size:1.22rem;letter-spacing:-.02em;line-height:1.1;margin-top:2px}
+  .mock .m-badge{flex:0 0 auto;font-size:.72rem;font-weight:700;padding:5px 11px;border-radius:999px;background:#FBEAE2;color:var(--clay);white-space:nowrap}
+  .mock .m-conf{margin-top:12px}
+  .mock .m-conf .lab{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted);margin-bottom:4px;font-weight:500}
+  .mock .m-conf .track{height:8px;border-radius:999px;background:#ECE4D2;overflow:hidden}
+  .mock .m-conf .fill{height:100%;width:94%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--green-500))}
+  .mock .m-advice{margin-top:13px;border-top:1px solid var(--line);padding-top:11px;font-size:.8rem;color:var(--ink)}
+  .mock .m-advice .tag{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:700;color:var(--green-700);margin-bottom:5px}
+  .mock .m-advice .tag svg{width:13px;height:13px}
+  /* floating chips around the mock */
+  .float-chip{
+    position:absolute;z-index:2;background:#fff;border:1px solid var(--line);border-radius:999px;
+    box-shadow:var(--shadow);font-size:.78rem;font-weight:600;padding:8px 14px;display:flex;gap:7px;align-items:center;
   }
-  .btn-primary{background:linear-gradient(150deg,var(--green-700),var(--green-900));color:#fff}
-  .btn-primary:hover{filter:brightness(1.06)}
-  .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-  .btn-ghost{flex:0 0 auto;background:#fff;border:1px solid var(--line);color:var(--ink);font-family:var(--body);font-weight:600;font-size:.9rem;padding:14px 18px}
-  .loc-hint{margin-top:11px;font-size:.78rem;color:var(--muted);display:flex;gap:6px;align-items:center;justify-content:center}
-  .loc-hint svg{width:13px;height:13px;flex:0 0 auto}
+  .float-chip svg{width:14px;height:14px;color:var(--green-700);flex:0 0 auto}
+  .fc1{top:6%;left:-2%;transform:rotate(-3deg);animation:float 6s .6s ease-in-out infinite}
+  .fc2{bottom:0%;right:-12%;transform:rotate(2.5deg);animation:float 6.7s 1.1s ease-in-out infinite}
 
-  /* Status line while loading */
-  .status{display:none;margin-top:13px;font-size:.88rem;color:var(--green-900);text-align:center;font-weight:500}
-  .status.show{display:block}
-
-  /* Result */
-  #result{margin-top:18px;display:none}
-  #result.show{display:block;animation:rise .4s cubic-bezier(.2,.7,.3,1)}
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-  .diag{padding:18px 18px 16px}
-  .diag .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-  .crop-eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700}
-  .disease-name{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.05;margin:3px 0 0;letter-spacing:-.02em}
-  .badge{flex:0 0 auto;font-size:.78rem;font-weight:700;padding:6px 12px;border-radius:999px;white-space:nowrap}
-  .badge.healthy{background:#E4F3E6;color:var(--good)}
-  .badge.disease{background:#FBEAE2;color:var(--clay)}
-
-  .conf{margin-top:15px}
-  .conf .lab{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:5px;font-weight:500}
-  .conf .track{height:9px;border-radius:999px;background:#ECE4D2;overflow:hidden}
-  .conf .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--green-500));width:0;transition:width .8s cubic-bezier(.2,.7,.3,1)}
-  .conf .narrowed{margin-top:7px;font-size:.74rem;color:var(--muted)}
-  .conf .narrowed b{color:var(--green-900);font-weight:600}
-
-  .divider{height:1px;background:var(--line);margin:0}
-
-  /* Pressure meter */
-  .pressure{padding:15px 18px;display:flex;align-items:center;gap:13px}
-  .pmeter{display:flex;gap:4px}
-  .pseg{width:26px;height:9px;border-radius:3px;background:#ECE4D2}
-  .pseg.on-low{background:var(--good)} .pseg.on-mod{background:var(--gold)} .pseg.on-high{background:var(--clay)}
-  .ptext{font-size:.86rem}
-  .ptext b{font-family:var(--display);font-weight:700}
-  .ptext .pn{font-size:.74rem;color:var(--muted)}
-
-  /* Context chips */
-  .chips{padding:4px 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .chip{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px}
-  .chip .k{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;gap:6px;align-items:center}
-  .chip .k svg{width:13px;height:13px}
-  .chip .v{font-family:var(--display);font-weight:700;font-size:1.02rem;margin-top:3px;line-height:1.15}
-  .chip .v small{font-family:var(--body);font-weight:500;font-size:.78rem;color:var(--muted)}
-  .chip.wide{grid-column:1 / -1}
-  .chip .meta{font-size:.78rem;color:var(--muted);margin-top:3px}
-
-  .retry-weather{
-    display:block;margin:0 14px 14px;font-family:var(--body);font-weight:600;font-size:.84rem;
-    border:1px dashed var(--line);background:transparent;color:var(--green-700);
-    padding:9px 12px;border-radius:var(--r-sm);cursor:pointer;width:calc(100% - 28px);
+  @media (max-width:820px){
+    .hero{grid-template-columns:1fr;gap:40px;padding:30px 0 48px;text-align:center}
+    .hero .lede{margin-left:auto;margin-right:auto}
+    .cta-row,.trust{justify-content:center}
+    .fc1{left:2%} .fc2{right:2%; bottom:-5%}
   }
-  .retry-weather:hover{border-color:var(--green-500);background:#F2F6EC}
-  .retry-weather:disabled{opacity:.6;cursor:not-allowed}
 
-  /* Advisory */
-  .advice{padding:16px 18px 6px}
-  .advice h3{font-family:var(--display);font-weight:700;font-size:1.05rem;margin:0 0 11px;display:flex;align-items:center;gap:8px}
-  .advice h3 svg{width:18px;height:18px;color:var(--green-700)}
-  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
-  .steps li{position:relative;padding-left:30px;font-size:.93rem}
-  .steps li::before{
-    content:"";position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:50%;
-    background:radial-gradient(circle at 50% 45%, var(--green-500), var(--green-900));
+  /* ---------- sections ---------- */
+  section.block{padding:58px 0}
+  .sec-head{text-align:center;max-width:560px;margin:0 auto 38px}
+  .sec-head .kicker{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin-bottom:8px}
+  .sec-head h2{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3.4vw,2.2rem);letter-spacing:-.025em;margin:0 0 8px;line-height:1.12}
+  .sec-head p{color:var(--muted);font-size:.96rem;margin:0}
+
+  /* how it works */
+  .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:step}
+  .step-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:26px 22px;position:relative;counter-increment:step;
   }
-  .steps li::after{content:"";position:absolute;left:6.5px;top:8px;width:4px;height:4px;border-radius:50%;background:#fff}
+  .step-card .num{
+    font-family:var(--display);font-weight:800;font-size:.82rem;color:#fff;
+    width:30px;height:30px;border-radius:50%;display:grid;place-items:center;margin-bottom:16px;
+    background:radial-gradient(circle at 50% 40%, var(--green-500), var(--green-900));
+  }
+  .step-card .num::before{content:counter(step)}
+  .step-card .ic{width:40px;height:40px;color:var(--green-700);margin-bottom:12px}
+  .step-card h3{font-family:var(--display);font-weight:700;font-size:1.1rem;letter-spacing:-.01em;margin:0 0 6px}
+  .step-card p{font-size:.89rem;color:var(--muted);margin:0}
+  .step-card .hi-line{display:block;font-size:.8rem;color:var(--green-900);margin-top:8px;font-weight:500}
+  @media (max-width:760px){ .steps3{grid-template-columns:1fr} }
 
-  .loc-prompt{margin:0 18px 16px;background:#FCF6E6;border:1px solid #EBD9A6;border-radius:var(--r-sm);padding:13px 14px;font-size:.86rem;color:var(--gold-deep);display:flex;gap:9px;align-items:flex-start}
-  .loc-prompt svg{width:17px;height:17px;flex:0 0 auto;margin-top:1px}
+  /* features */
+  .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .feat{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:24px;display:flex;gap:16px;align-items:flex-start;
+  }
+  .feat .fic{
+    flex:0 0 auto;width:46px;height:46px;border-radius:13px;display:grid;place-items:center;
+    background:linear-gradient(150deg,#EAF4E7,#DDEBD6);color:var(--green-700);
+  }
+  .feat .fic svg{width:23px;height:23px}
+  .feat h3{font-family:var(--display);font-weight:700;font-size:1.04rem;letter-spacing:-.01em;margin:0 0 5px}
+  .feat p{font-size:.88rem;color:var(--muted);margin:0}
+  @media (max-width:720px){ .feat-grid{grid-template-columns:1fr} }
 
-  /* Alternatives */
-  .alts{padding:6px 18px 4px}
-  .alts summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--green-900);list-style:none;padding:8px 0}
-  .alts summary::-webkit-details-marker{display:none}
-  .alts summary .chev{transition:transform .2s;display:inline-block}
-  .alts[open] summary .chev{transform:rotate(90deg)}
-  .alt{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:.88rem}
-  .alt .nm{flex:1}
-  .alt .bar{width:78px;height:6px;border-radius:999px;background:#ECE4D2;overflow:hidden}
-  .alt .bar i{display:block;height:100%;background:var(--gold)}
-  .alt .pc{width:42px;text-align:right;color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums}
+  /* crops strip */
+  .crops-strip{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+    padding:30px 26px;text-align:center;
+  }
+  .crops-strip h2{font-family:var(--display);font-weight:800;font-size:1.35rem;letter-spacing:-.02em;margin:0 0 6px}
+  .crops-strip .sub{color:var(--muted);font-size:.9rem;margin:0 0 20px}
+  .crop-pills{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .crop-pill{
+    font-weight:600;font-size:.92rem;color:var(--green-900);
+    border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 18px;
+    display:inline-flex;flex-direction:column;align-items:center;line-height:1.2;
+  }
+  .crop-pill .hi{font-size:.74rem;color:var(--muted);font-weight:500}
+  .crops-note{margin-top:18px;font-size:.8rem;color:var(--muted)}
 
-  .disclaimer{margin:8px 2px 0;font-size:.76rem;color:var(--muted);text-align:center;padding:0 6px;line-height:1.5}
+  /* CTA band */
+  .cta-band{
+    background:linear-gradient(150deg,var(--green-700),var(--green-900));
+    border-radius:var(--r);box-shadow:var(--shadow-lg);padding:52px 30px;text-align:center;color:#fff;
+    position:relative;overflow:hidden;
+  }
+  .cta-band::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(90% 120% at 80% -20%, rgba(215,161,41,.28), transparent 55%);
+  }
+  .cta-band > *{position:relative}
+  .cta-band h2{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3.6vw,2.3rem);letter-spacing:-.025em;margin:0 0 8px;line-height:1.12}
+  .cta-band p{color:rgba(255,255,255,.85);font-size:.98rem;margin:0 0 26px}
+  .btn-inverse{
+    font-family:var(--display);font-weight:700;font-size:1.06rem;text-decoration:none;letter-spacing:-.01em;
+    background:#fff;color:var(--green-900);padding:15px 30px;border-radius:var(--r-sm);
+    display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 22px rgba(0,0,0,.22);
+    transition:transform .15s;
+  }
+  .btn-inverse:hover{transform:translateY(-1px)}
+  .btn-inverse svg{width:19px;height:19px}
+  .cta-band .free-line{margin-top:16px;font-size:.82rem;color:rgba(255,255,255,.75)}
 
-  /* Error */
-  .error{display:none;margin-top:16px;background:#FBEAE2;border:1px solid #EBC3B2;border-radius:var(--r-sm);padding:14px 15px;color:var(--clay);font-size:.9rem}
-  .error.show{display:block}
-  .error b{display:block;font-family:var(--display);margin-bottom:2px}
+  footer{padding:40px 0 44px;text-align:center;font-size:.78rem;color:var(--muted)}
+  footer .f-brand{font-family:var(--display);font-weight:700;color:var(--green-900);font-size:.92rem;margin-bottom:6px}
+  footer .disclaimer{max-width:520px;margin:10px auto 0;line-height:1.6}
 
-  footer{margin-top:34px;text-align:center;font-size:.76rem;color:var(--muted)}
-  footer span{color:var(--green-700);font-weight:600}
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease, transform .55s cubic-bezier(.2,.7,.3,1)}
+  .reveal.in{opacity:1;transform:none}
 
-  @media (max-width:380px){ .chips{grid-template-columns:1fr} }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+    .reveal{opacity:1;transform:none}
   }
 </style>
 </head>
@@ -225,672 +257,284 @@
 <div class="brandbar"></div>
 <div class="wrap">
 
-  <header>
+  <nav>
     <div class="mark" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#D7A129" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
         <path d="M2 21c0-3 1.85-5.36 5.08-6"/>
       </svg>
     </div>
-    <div class="titles">
-      <h1>KisaanMitra</h1>
-      <div class="sub">फसल की सेहत, आपके हाथ में · Spot crop disease from a leaf photo</div>
-    </div>
+    <span class="brand">KisaanMitra</span>
+    <span class="spacer"></span>
     <button class="lang-toggle" type="button" id="langToggle" aria-label="Switch language">EN / हिं</button>
-  </header>
+    <a class="nav-cta" href="app.html" id="navCta">Open the app</a>
+  </nav>
 
-  <!-- Upload card -->
-  <section class="card" aria-label="Upload a leaf photo">
-
-    <!-- Step 1: pick the crop. This narrows prediction to that crop's diseases. -->
-    <div class="crop-select">
-      <p class="q" id="qCrop">Which crop are you checking?</p>
-      <p class="qhi">कौन सी फसल? — पहले फसल चुनें, फिर पत्ती की फोटो डालें</p>
-      <div class="crop-grid" id="cropGrid" role="group" aria-label="Choose a crop"></div>
-      <div class="crop-divider"></div>
+  <!-- Hero -->
+  <section class="hero">
+    <div>
+      <span class="eyebrow"><span class="dot"></span><span id="eyebrowText">AI crop disease detection · एआई फसल रोग पहचान</span></span>
+      <h1 class="headline" id="headline">Spot crop disease from a <em>single leaf photo</em></h1>
+      <p class="lede" id="lede">Take a photo of an affected leaf and KisaanMitra identifies the disease in seconds — then tells you exactly what to do, tuned to your local weather and soil.</p>
+      <p class="lede-hi" id="ledeHi">पत्ती की एक फोटो लें — रोग की पहचान और आपके मौसम व मिट्टी के अनुसार सलाह, कुछ ही सेकंड में।</p>
+      <div class="cta-row">
+        <a class="btn-hero" href="app.html" id="ctaMain">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>
+          <span id="ctaMainLabel">Check a leaf now</span>
+        </a>
+        <a class="btn-quiet" href="#how" id="ctaHow">How it works</a>
+      </div>
+      <div class="trust">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="trust1">Free to use</span></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="trust2">No sign-up needed</span></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="trust3">हिंदी में उपलब्ध</span></span>
+      </div>
     </div>
 
-    <!-- Step 2: the photo (locked until a crop is chosen) -->
-    <div class="drop locked" id="drop" tabindex="0" role="button" aria-label="Choose or drop a leaf photo">
-      <svg class="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-        <path d="M2 21c0-3 1.85-5.36 5.08-6"/>
-      </svg>
-      <h2 id="dropTitle">Photograph an affected leaf</h2>
-      <p id="dropSub">Fill the frame with one leaf in good light</p>
-      <div class="ghost-btns">
-        <button class="gbtn" type="button" id="cameraBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>
-          <span id="cameraBtnLabel">Use camera</span>
-        </button>
-        <button class="gbtn" type="button" id="galleryBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 20"/></svg>
-          <span id="galleryBtnLabel">From gallery</span>
-        </button>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="glow"></div>
+      <div class="float-chip fc1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>
+        <span id="fc1Text">Weather-aware advice</span>
       </div>
-      <span class="lockhint">↑ पहले ऊपर से फसल चुनें · Pick a crop above first</span>
-    </div>
-
-    <div class="preview" id="preview">
-      <div class="frame" id="frame">
-        <img id="previewImg" alt="Selected leaf" />
-        <div class="scanline"></div>
-      </div>
-      <div class="crop-tag" id="cropTag"></div>
-      <div class="actions">
-        <button class="btn btn-primary" id="analyzeBtn">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <span id="analyzeBtnLabel">Diagnose</span>
-        </button>
-        <button class="btn btn-ghost" id="resetBtn" type="button"><span id="resetBtnLabel">Change</span></button>
-      </div>
-      <div class="loc-hint">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span id="locHintText">Location is used once to tailor advice to your soil &amp; weather. You can decline.</span>
-      </div>
-      <div class="status" id="status"></div>
-    </div>
-
-    <input type="file" id="fileGallery" accept="image/*" hidden />
-    <input type="file" id="fileCamera" accept="image/*" capture="environment" hidden />
-  </section>
-
-  <!-- Error -->
-  <div class="error" id="error"></div>
-
-  <!-- Result -->
-  <section class="card" id="result" aria-live="polite">
-    <div class="diag">
-      <div class="row1">
-        <div>
-          <div class="crop-eyebrow" id="cropEyebrow">Crop</div>
-          <h2 class="disease-name" id="diseaseName">—</h2>
+      <div class="mock">
+        <div class="shot">
+          <div class="leafshape"></div>
+          <div class="spot s1"></div><div class="spot s2"></div><div class="spot s3"></div>
+          <div class="scanline"></div>
         </div>
-        <span class="badge" id="badge">—</span>
+        <div class="mrow">
+          <div>
+            <div class="m-eyebrow" id="mCrop">Wheat · गेहूँ</div>
+            <div class="m-disease" id="mDisease">Yellow rust</div>
+          </div>
+          <span class="m-badge" id="mBadge">Disease found</span>
+        </div>
+        <div class="m-conf">
+          <div class="lab"><span id="mConfLabel">Model confidence</span><span>94%</span></div>
+          <div class="track"><div class="fill"></div></div>
+        </div>
+        <div class="m-advice">
+          <span class="tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>
+            <span id="mTag">What to do</span>
+          </span>
+          <div id="mAdvice">Spray propiconazole promptly — cool humid weather favours spread.</div>
+        </div>
       </div>
-      <div class="conf">
-        <div class="lab"><span id="confLabel">Model confidence</span><span id="confPct">—</span></div>
-        <div class="track"><div class="fill" id="confFill"></div></div>
-        <div class="narrowed" id="narrowed" style="display:none"></div>
+      <div class="float-chip fc2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17h18M3 13h18M5 9h14"/><path d="M12 3v4"/></svg>
+        <span id="fc2Text">Knows your soil type</span>
       </div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="pressure" id="pressureBlock">
-      <div class="pmeter" id="pmeter"><div class="pseg"></div><div class="pseg"></div><div class="pseg"></div></div>
-      <div class="ptext"><b id="pressureLabel">—</b><div class="pn" id="pressureNote"></div></div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="chips" id="chips"></div>
-    <button class="retry-weather" type="button" id="retryWeatherBtn" style="display:none">
-      <span id="retryWeatherLabel">Try weather again</span>
-    </button>
-
-    <div class="divider"></div>
-    <div class="advice">
-      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg><span id="whatToDoLabel">What to do</span></h3>
-      <ul class="steps" id="steps"></ul>
-    </div>
-
-    <div class="loc-prompt" id="locPrompt" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span id="locPromptText">Allow location and diagnose again to get soil- and weather-specific steps for your field.</span>
-    </div>
-
-    <details class="alts" id="altsBlock" style="display:none">
-      <summary><span class="chev">›</span> <span id="altsLabel">Other possibilities</span></summary>
-      <div id="alts"></div>
-    </details>
-
-    <div class="advice" style="padding-top:0">
-      <p class="disclaimer" id="disclaimer"></p>
     </div>
   </section>
 
-  <footer id="footerText">KisaanMitra — AI Crop Disease Detection</footer>
+  <!-- How it works -->
+  <section class="block" id="how">
+    <div class="sec-head reveal">
+      <div class="kicker" id="howKicker">How it works</div>
+      <h2 id="howTitle">Three simple steps</h2>
+      <p id="howSub">No forms, no jargon — from photo to advice in under a minute.</p>
+    </div>
+    <div class="steps3">
+      <div class="step-card reveal">
+        <div class="num"></div>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+        <h3 id="s1Title">Pick your crop</h3>
+        <p id="s1Body">Choose the crop you're checking so the diagnosis compares only against that crop's diseases — no cross-crop mistakes.</p>
+        <span class="hi-line" id="s1Hi">अपनी फसल चुनें</span>
+      </div>
+      <div class="step-card reveal">
+        <div class="num"></div>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>
+        <h3 id="s2Title">Photograph a leaf</h3>
+        <p id="s2Body">Use your phone camera or gallery. Fill the frame with one affected leaf in good light — that's all the app needs.</p>
+        <span class="hi-line" id="s2Hi">पत्ती की फोटो लें</span>
+      </div>
+      <div class="step-card reveal">
+        <div class="num"></div>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>
+        <h3 id="s3Title">Get clear advice</h3>
+        <p id="s3Body">See the disease, how confident the model is, and practical steps — adjusted for the rain, humidity and soil at your field.</p>
+        <span class="hi-line" id="s3Hi">साफ सलाह पाएं</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="block" id="features" style="padding-top:6px">
+    <div class="sec-head reveal">
+      <div class="kicker" id="featKicker">Why KisaanMitra</div>
+      <h2 id="featTitle">Advice that fits your field, not a textbook</h2>
+      <p id="featSub">Most tools stop at naming the disease. KisaanMitra tells you what to do about it — here, this week.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal">
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <div>
+          <h3 id="f1Title">Crop-focused diagnosis</h3>
+          <p id="f1Body">You tell it the crop first, so a wheat leaf is never confused with a rice disease. The model looks only where it should.</p>
+        </div>
+      </div>
+      <div class="feat reveal">
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a5.5 5.5 0 1 1 1.4-10.8A6 6 0 1 1 17.5 19Z"/></svg></div>
+        <div>
+          <h3 id="f2Title">Weather-aware guidance</h3>
+          <p id="f2Body">Rain coming in 48 hours? It tells you to use a rain-fast spray or wait. It reads live weather to judge how fast disease will spread.</p>
+        </div>
+      </div>
+      <div class="feat reveal">
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17h18M3 13h18M5 9h14"/><path d="M12 3v4"/></svg></div>
+        <div>
+          <h3 id="f3Title">Soil-smart steps</h3>
+          <p id="f3Body">Black cotton soil drains differently from sandy loam. Share your location once and the advice accounts for your soil's behaviour.</p>
+        </div>
+      </div>
+      <div class="feat reveal">
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14M9 3l1 5-4 9M15 3l-1 5 4 9"/><path d="M4 21h16"/></svg></div>
+        <div>
+          <h3 id="f4Title">हिंदी + English</h3>
+          <p id="f4Body">Every screen, every diagnosis and every step of advice is available in Hindi and English — switch with one tap, any time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Crops -->
+  <section class="block" style="padding-top:6px">
+    <div class="crops-strip reveal">
+      <h2 id="cropsTitle">Works with India's staple crops</h2>
+      <p class="sub" id="cropsSub">Trained on thousands of leaf images across the diseases that matter most.</p>
+      <div class="crop-pills">
+        <span class="crop-pill">Corn<span class="hi">मक्का</span></span>
+        <span class="crop-pill">Potato<span class="hi">आलू</span></span>
+        <span class="crop-pill">Rice<span class="hi">धान</span></span>
+        <span class="crop-pill">Sugarcane<span class="hi">गन्ना</span></span>
+        <span class="crop-pill">Wheat<span class="hi">गेहूँ</span></span>
+      </div>
+      <p class="crops-note" id="cropsNote">Covering rusts, blights, blast, mosaic, red rot and more — plus healthy-leaf detection.</p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="block" style="padding-top:6px">
+    <div class="cta-band reveal">
+      <h2 id="bandTitle">Your crop's health, in your hands</h2>
+      <p id="bandSub">फसल की सेहत, आपके हाथ में — check a leaf right now, free.</p>
+      <a class="btn-inverse" href="app.html" id="bandCta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+        <span id="bandCtaLabel">Start a diagnosis</span>
+      </a>
+      <div class="free-line" id="bandFree">Free · no account · works on any phone browser</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="f-brand">KisaanMitra · किसानमित्र</div>
+    <div id="footerLine">AI crop disease detection for every farmer</div>
+    <p class="disclaimer" id="footerDisclaimer">Guidance is indicative. Confirm dose and product with your local Krishi Vigyan Kendra (KVK) or agriculture extension officer before spraying.</p>
+  </footer>
 </div>
 
 <script>
-// DEPLOY: point this at wherever backend/ (the FastAPI app) is hosted.
-const API_BASE = "https://farmer-project-9yfw.onrender.com";
-
-const $ = (id) => document.getElementById(id);
-const drop = $("drop"), preview = $("preview"), previewImg = $("previewImg"), frame = $("frame");
-const fileGallery = $("fileGallery"), fileCamera = $("fileCamera");
-const analyzeBtn = $("analyzeBtn"), resetBtn = $("resetBtn");
-const status = $("status"), error = $("error"), result = $("result");
-let selectedFile = null;
-let selectedCrop = null;
-let lastResult = null;      // re-rendered on language switch so the result stays in sync
-let lastHadLocation = false;
-let lastLat = null, lastLon = null;   // kept so "Try weather again" can retry without re-diagnosing
-let weatherRetryState = "idle";       // idle | loading | failed
-
-/* ---------- language ---------- */
+/* Shares the same language preference as the app (localStorage "kisaanmitra_lang"),
+   so a choice made on either page carries over to the other. */
 let LANG = localStorage.getItem("kisaanmitra_lang") || "en";
 
-const UI_STR = {
-  qCrop: { en: "Which crop are you checking?", hi: "आप किस फसल की जांच कर रहे हैं?" },
-  dropTitle: { en: "Photograph an affected leaf", hi: "प्रभावित पत्ती की फोटो लें" },
-  dropSub: { en: "Fill the frame with one leaf in good light", hi: "अच्छी रोशनी में एक पत्ती से फ्रेम भरें" },
-  cameraBtnLabel: { en: "Use camera", hi: "कैमरा उपयोग करें" },
-  galleryBtnLabel: { en: "From gallery", hi: "गैलरी से चुनें" },
-  analyzeBtnLabel: { en: "Diagnose", hi: "जांच करें" },
-  resetBtnLabel: { en: "Change", hi: "बदलें" },
-  locHintText: { en: "Location is used once to tailor advice to your soil &amp; weather. You can decline.",
-                 hi: "आपकी मिट्टी और मौसम के अनुसार सलाह देने के लिए स्थान का एक बार उपयोग किया जाता है। आप मना कर सकते हैं।" },
-  confLabel: { en: "Model confidence", hi: "मॉडल विश्वास" },
-  whatToDoLabel: { en: "What to do", hi: "क्या करें" },
-  locPromptText: { en: "Allow location and diagnose again to get soil- and weather-specific steps for your field.",
-                   hi: "अपने खेत के लिए मिट्टी और मौसम पर आधारित सलाह पाने हेतु स्थान की अनुमति दें और दोबारा जांच करें।" },
-  altsLabel: { en: "Other possibilities", hi: "अन्य संभावनाएं" },
-  footerText: { en: "KisaanMitra — AI Crop Disease Detection", hi: "किसानमित्र — एआई फसल रोग पहचान" },
-  retryWeatherLabel: { en: "Try weather again", hi: "मौसम फिर से लाएं" },
-  retryWeatherLoading: { en: "Fetching weather…", hi: "मौसम लाया जा रहा है…" },
-  retryWeatherFailed: { en: "Still unavailable — try again", hi: "अभी भी उपलब्ध नहीं — फिर कोशिश करें" },
-  cropEyebrowDefault: { en: "Crop", hi: "फसल" },
-  pickCropFirstTitle: { en: "Pick a crop first", hi: "पहले फसल चुनें" },
-  pickCropFirstBodyPhoto: { en: "Tap the crop you're checking, then add the photo.", hi: "जिस फसल की जांच कर रहे हैं उसे चुनें, फिर फोटो जोड़ें।" },
-  pickCropFirstBodyDiagnose: { en: "Tap the crop you're checking, then Diagnose.", hi: "जिस फसल की जांच कर रहे हैं उसे चुनें, फिर जांच करें पर टैप करें।" },
-  notImageTitle: { en: "That file isn't an image", hi: "यह फ़ाइल एक छवि नहीं है" },
-  notImageBody: { en: "Choose a photo of a leaf (JPG or PNG).", hi: "पत्ती की एक फोटो चुनें (JPG या PNG)।" },
-  offlineTitle: { en: "You're offline", hi: "आप ऑफ़लाइन हैं" },
-  offlineBody: { en: "Reconnect to the internet and try again.", hi: "इंटरनेट से दोबारा जुड़ें और फिर से कोशिश करें।" },
-  serverErrTitle: { en: "Couldn't reach the diagnosis server", hi: "जांच सर्वर से संपर्क नहीं हो सका" },
-  serverErrBody: { en: "It may still be starting up. Wait a few seconds and tap Diagnose again.",
-                    hi: "सर्वर अभी शुरू हो रहा हो सकता है। कुछ सेकंड रुकें और फिर से जांच करें पर टैप करें।" },
-  statusLocating: { en: "Reading your location…", hi: "आपका स्थान पढ़ा जा रहा है…" },
-  statusAnalysing: { en: "Analysing the leaf…", hi: "पत्ती का विश्लेषण हो रहा है…" },
-  statusColdStart: { en: "Server is starting up — the first request can take up to a minute…",
-                      hi: "सर्वर शुरू हो रहा है — पहली रिक्वेस्ट में एक मिनट तक लग सकता है…" },
-  checking: { en: "Checking", hi: "जांच हो रही है" },
-  changeLink: { en: "change", hi: "बदलें" },
-  compared: { en: "Compared only against", hi: "केवल इनकी तुलना में" },
-  diseases: { en: "diseases", hi: "रोगों से" },
-  unknown: { en: "Unknown", hi: "अज्ञात" },
+const STR = {
+  navCta:        { en:"Open the app", hi:"ऐप खोलें" },
+  eyebrowText:   { en:"AI crop disease detection · एआई फसल रोग पहचान", hi:"एआई फसल रोग पहचान · AI crop disease detection" },
+  headline:      { en:'Spot crop disease from a <em>single leaf photo</em>', hi:'पत्ती की <em>एक फोटो</em> से फसल रोग पहचानें' },
+  lede:          { en:"Take a photo of an affected leaf and KisaanMitra identifies the disease in seconds — then tells you exactly what to do, tuned to your local weather and soil.",
+                   hi:"प्रभावित पत्ती की फोटो लें — किसानमित्र कुछ ही सेकंड में रोग पहचानता है और आपके स्थानीय मौसम व मिट्टी के अनुसार बताता है कि क्या करना है।" },
+  ledeHi:        { en:"पत्ती की एक फोटो लें — रोग की पहचान और आपके मौसम व मिट्टी के अनुसार सलाह, कुछ ही सेकंड में।",
+                   hi:"Take one leaf photo — disease identified with weather- and soil-aware advice, in seconds." },
+  ctaMainLabel:  { en:"Check a leaf now", hi:"अभी पत्ती जांचें" },
+  ctaHow:        { en:"How it works", hi:"कैसे काम करता है" },
+  trust1:        { en:"Free to use", hi:"पूरी तरह मुफ़्त" },
+  trust2:        { en:"No sign-up needed", hi:"कोई साइन-अप नहीं" },
+  trust3:        { en:"हिंदी में उपलब्ध", hi:"Available in English" },
+  fc1Text:       { en:"Weather-aware advice", hi:"मौसम आधारित सलाह" },
+  fc2Text:       { en:"Knows your soil type", hi:"आपकी मिट्टी को समझता है" },
+  mCrop:         { en:"Wheat · गेहूँ", hi:"गेहूँ · Wheat" },
+  mDisease:      { en:"Yellow rust", hi:"पीला रतुआ" },
+  mBadge:        { en:"Disease found", hi:"रोग मिला" },
+  mConfLabel:    { en:"Model confidence", hi:"मॉडल विश्वास" },
+  mTag:          { en:"What to do", hi:"क्या करें" },
+  mAdvice:       { en:"Spray propiconazole promptly — cool humid weather favours spread.", hi:"तुरंत प्रोपिकोनाज़ोल छिड़कें — ठंडा नम मौसम फैलाव के अनुकूल है।" },
+  howKicker:     { en:"How it works", hi:"कैसे काम करता है" },
+  howTitle:      { en:"Three simple steps", hi:"तीन आसान कदम" },
+  howSub:        { en:"No forms, no jargon — from photo to advice in under a minute.", hi:"कोई फॉर्म नहीं, कोई मुश्किल भाषा नहीं — फोटो से सलाह तक, एक मिनट से भी कम में।" },
+  s1Title:       { en:"Pick your crop", hi:"अपनी फसल चुनें" },
+  s1Body:        { en:"Choose the crop you're checking so the diagnosis compares only against that crop's diseases — no cross-crop mistakes.",
+                   hi:"पहले फसल चुनें ताकि जांच केवल उसी फसल के रोगों से तुलना करे — गलत फसल की भूल कभी नहीं।" },
+  s1Hi:          { en:"अपनी फसल चुनें", hi:"Pick your crop" },
+  s2Title:       { en:"Photograph a leaf", hi:"पत्ती की फोटो लें" },
+  s2Body:        { en:"Use your phone camera or gallery. Fill the frame with one affected leaf in good light — that's all the app needs.",
+                   hi:"फोन का कैमरा या गैलरी उपयोग करें। अच्छी रोशनी में एक प्रभावित पत्ती से फ्रेम भरें — बस इतना ही चाहिए।" },
+  s2Hi:          { en:"पत्ती की फोटो लें", hi:"Photograph a leaf" },
+  s3Title:       { en:"Get clear advice", hi:"साफ सलाह पाएं" },
+  s3Body:        { en:"See the disease, how confident the model is, and practical steps — adjusted for the rain, humidity and soil at your field.",
+                   hi:"रोग का नाम, मॉडल का विश्वास और व्यावहारिक कदम देखें — आपके खेत की बारिश, नमी और मिट्टी के अनुसार।" },
+  s3Hi:          { en:"साफ सलाह पाएं", hi:"Get clear advice" },
+  featKicker:    { en:"Why KisaanMitra", hi:"किसानमित्र ही क्यों" },
+  featTitle:     { en:"Advice that fits your field, not a textbook", hi:"सलाह जो आपके खेत के लिए है, किताब के लिए नहीं" },
+  featSub:       { en:"Most tools stop at naming the disease. KisaanMitra tells you what to do about it — here, this week.",
+                   hi:"अधिकतर टूल रोग का नाम बताकर रुक जाते हैं। किसानमित्र बताता है कि अभी, इसी हफ्ते क्या करना है।" },
+  f1Title:       { en:"Crop-focused diagnosis", hi:"फसल-केंद्रित जांच" },
+  f1Body:        { en:"You tell it the crop first, so a wheat leaf is never confused with a rice disease. The model looks only where it should.",
+                   hi:"आप पहले फसल बताते हैं, इसलिए गेहूँ की पत्ती कभी धान के रोग से भ्रमित नहीं होती। मॉडल वहीं देखता है जहां देखना चाहिए।" },
+  f2Title:       { en:"Weather-aware guidance", hi:"मौसम आधारित मार्गदर्शन" },
+  f2Body:        { en:"Rain coming in 48 hours? It tells you to use a rain-fast spray or wait. It reads live weather to judge how fast disease will spread.",
+                   hi:"48 घंटे में बारिश आने वाली है? यह रेन-फास्ट स्प्रे या रुकने की सलाह देता है। रोग कितनी तेज़ी से फैलेगा, यह लाइव मौसम से आंकता है।" },
+  f3Title:       { en:"Soil-smart steps", hi:"मिट्टी के अनुसार कदम" },
+  f3Body:        { en:"Black cotton soil drains differently from sandy loam. Share your location once and the advice accounts for your soil's behaviour.",
+                   hi:"काली मिट्टी और बलुई दोमट का पानी अलग तरह बहता है। एक बार स्थान साझा करें और सलाह आपकी मिट्टी के व्यवहार को ध्यान में रखेगी।" },
+  f4Title:       { en:"हिंदी + English", hi:"हिंदी + English" },
+  f4Body:        { en:"Every screen, every diagnosis and every step of advice is available in Hindi and English — switch with one tap, any time.",
+                   hi:"हर स्क्रीन, हर जांच और सलाह का हर कदम हिंदी और अंग्रेज़ी में उपलब्ध है — एक टैप में भाषा बदलें, कभी भी।" },
+  cropsTitle:    { en:"Works with India's staple crops", hi:"भारत की प्रमुख फसलों के लिए" },
+  cropsSub:      { en:"Trained on thousands of leaf images across the diseases that matter most.",
+                   hi:"सबसे महत्वपूर्ण रोगों की हज़ारों पत्ती-छवियों पर प्रशिक्षित।" },
+  cropsNote:     { en:"Covering rusts, blights, blast, mosaic, red rot and more — plus healthy-leaf detection.",
+                   hi:"रतुआ, झुलसा, ब्लास्ट, मोज़ेक, लाल सड़न और भी बहुत कुछ — साथ ही स्वस्थ पत्ती की पहचान।" },
+  bandTitle:     { en:"Your crop's health, in your hands", hi:"फसल की सेहत, आपके हाथ में" },
+  bandSub:       { en:"फसल की सेहत, आपके हाथ में — check a leaf right now, free.", hi:"Your crop's health, in your hands — अभी मुफ़्त में पत्ती जांचें।" },
+  bandCtaLabel:  { en:"Start a diagnosis", hi:"जांच शुरू करें" },
+  bandFree:      { en:"Free · no account · works on any phone browser", hi:"मुफ़्त · कोई खाता नहीं · किसी भी फोन ब्राउज़र पर चलता है" },
+  footerLine:    { en:"AI crop disease detection for every farmer", hi:"हर किसान के लिए एआई फसल रोग पहचान" },
+  footerDisclaimer: { en:"Guidance is indicative. Confirm dose and product with your local Krishi Vigyan Kendra (KVK) or agriculture extension officer before spraying.",
+                      hi:"यह सलाह केवल संकेतात्मक है। छिड़काव से पहले मात्रा और उत्पाद की पुष्टि अपने स्थानीय कृषि विज्ञान केंद्र (KVK) या कृषि विस्तार अधिकारी से करें।" },
 };
 
-// Only these keys double as DOM element ids for applyStaticI18n() to overwrite via innerHTML.
-// Everything else in UI_STR is looked up programmatically (UI_STR.key[LANG]) and must NOT be
-// treated as an id — e.g. a stray key matching a real id like "result" would wipe out that
-// element's entire subtree.
-const STATIC_TEXT_IDS = [
-  "qCrop", "dropTitle", "dropSub", "cameraBtnLabel", "galleryBtnLabel", "analyzeBtnLabel",
-  "resetBtnLabel", "locHintText", "confLabel", "whatToDoLabel", "locPromptText", "altsLabel",
-  "footerText",
-];
-
-function applyStaticI18n(){
-  STATIC_TEXT_IDS.forEach((id)=>{
-    const el = $(id);
-    const val = UI_STR[id];
-    if(el && val) el.innerHTML = val[LANG] || val.en;
+function applyI18n(){
+  Object.keys(STR).forEach((id)=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = STR[id][LANG] || STR[id].en;
   });
-  $("langToggle").classList.toggle("active-hi", LANG === "hi");
-  $("langToggle").textContent = LANG === "hi" ? "हिं / EN" : "EN / हिं";
+  const t = document.getElementById("langToggle");
+  t.classList.toggle("active-hi", LANG === "hi");
+  t.textContent = LANG === "hi" ? "हिं / EN" : "EN / हिं";
   document.documentElement.lang = LANG;
-  renderCrops(currentCropList);
-  if(selectedCrop) selectCrop(selectedCrop, /*skipScroll*/ true);
-  if(lastResult) renderResult(lastResult, lastHadLocation);
 }
 
-$("langToggle").addEventListener("click", ()=>{
+document.getElementById("langToggle").addEventListener("click", ()=>{
   LANG = LANG === "hi" ? "en" : "hi";
   localStorage.setItem("kisaanmitra_lang", LANG);
-  applyStaticI18n();
+  applyI18n();
 });
 
-/* ---------- crop selection (step 1) ----------
-   Crops render instantly from this local list so the picker isn't blocked by
-   Render's cold start; we then fetch /crops to reconcile AND warm the server
-   while the farmer is taking the photo. The backend list always wins if it differs. */
-const FALLBACK_CROPS = ["Corn", "Potato", "Rice", "Sugarcane", "Wheat"];
-const CROP_HI = { Corn:"मक्का", Potato:"आलू", Rice:"धान", Sugarcane:"गन्ना", Wheat:"गेहूँ" };
-let currentCropList = FALLBACK_CROPS;
-function cropLabel(crop){ return LANG === "hi" ? (CROP_HI[crop] || crop) : crop; }
+applyI18n();
 
-function renderCrops(list){
-  currentCropList = list;
-  const grid = $("cropGrid");
-  grid.innerHTML = "";
-  list.forEach(crop=>{
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "crop-btn" + (crop === selectedCrop ? " active" : "");
-    b.dataset.crop = crop;
-    b.setAttribute("aria-pressed", crop === selectedCrop ? "true" : "false");
-    b.innerHTML = LANG === "hi"
-      ? esc(CROP_HI[crop] || crop) + `<span class="hi">${esc(crop)}</span>`
-      : esc(crop) + (CROP_HI[crop] ? `<span class="hi">${CROP_HI[crop]}</span>` : "");
-    b.addEventListener("click", ()=> selectCrop(crop));
-    grid.appendChild(b);
-  });
-}
-
-function selectCrop(crop, skipScroll){
-  selectedCrop = crop;
-  [...$("cropGrid").children].forEach(b=>{
-    const on = b.dataset.crop === crop;
-    b.classList.toggle("active", on);
-    b.setAttribute("aria-pressed", on ? "true" : "false");
-  });
-  drop.classList.remove("locked");               // unlock the photo step
-  $("cropTag").innerHTML = `${UI_STR.checking[LANG]} <b>${esc(cropLabel(crop))}</b><a id="cropChange">${UI_STR.changeLink[LANG]}</a>`;
-  const ch = $("cropChange");
-  if(ch) ch.addEventListener("click", ()=> drop.scrollIntoView({behavior:"smooth", block:"center"}));
-}
-
-// instant render, then reconcile with the backend (and warm it up)
-renderCrops(FALLBACK_CROPS);
-applyStaticI18n();   // apply any saved language preference (e.g. Hindi) on load
-fetch(`${API_BASE}/crops`)
-  .then(r=> r.ok ? r.json() : null)
-  .then(d=>{
-    if(d && Array.isArray(d.crops) && d.crops.length &&
-       d.crops.join("|") !== FALLBACK_CROPS.join("|")){
-      renderCrops(d.crops);
-    }
-  })
-  .catch(()=>{ /* offline or cold — local list stays, no harm */ });
-
-/* ---------- file selection (step 2) ---------- */
-$("galleryBtn").addEventListener("click", (e)=>{ e.stopPropagation(); fileGallery.click(); });
-$("cameraBtn").addEventListener("click", (e)=>{ e.stopPropagation(); fileCamera.click(); });
-drop.addEventListener("click", ()=> fileGallery.click());
-drop.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileGallery.click(); }});
-fileGallery.addEventListener("change", (e)=> handleFile(e.target.files[0]));
-fileCamera.addEventListener("change", (e)=> handleFile(e.target.files[0]));
-
-["dragenter","dragover"].forEach(ev=> drop.addEventListener(ev,(e)=>{e.preventDefault();drop.classList.add("drag");}));
-["dragleave","drop"].forEach(ev=> drop.addEventListener(ev,(e)=>{e.preventDefault();drop.classList.remove("drag");}));
-drop.addEventListener("drop",(e)=>{ if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
-
-function handleFile(file){
-  if(!file) return;
-  if(!selectedCrop){ showError(UI_STR.pickCropFirstTitle[LANG], UI_STR.pickCropFirstBodyPhoto[LANG]); return; }
-  if(!file.type.startsWith("image/")){ showError(UI_STR.notImageTitle[LANG], UI_STR.notImageBody[LANG]); return; }
-  selectedFile = file;
-  previewImg.src = URL.createObjectURL(file);
-  drop.style.display = "none";
-  preview.classList.add("show");
-  result.classList.remove("show");
-  error.classList.remove("show");
-}
-
-resetBtn.addEventListener("click", ()=>{
-  // keep the chosen crop — farmers usually check several leaves of the same crop
-  selectedFile = null; fileGallery.value=""; fileCamera.value="";
-  preview.classList.remove("show"); drop.style.display="block";
-  result.classList.remove("show"); error.classList.remove("show");
+/* scroll-reveal */
+const io = ("IntersectionObserver" in window) ? new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+},{ threshold:.12 }) : null;
+document.querySelectorAll(".reveal").forEach((el,i)=>{
+  if(!io){ el.classList.add("in"); return; }
+  el.style.transitionDelay = (i % 3) * 70 + "ms";
+  io.observe(el);
 });
-
-/* ---------- location (asked on the diagnose click) ---------- */
-function getCoords(){
-  return new Promise((resolve)=>{
-    if(!navigator.geolocation) return resolve({});
-    navigator.geolocation.getCurrentPosition(
-      (p)=> resolve({ lat:p.coords.latitude, lon:p.coords.longitude }),
-      ()=> resolve({}),
-      { timeout:8000, maximumAge:600000 }
-    );
-  });
-}
-
-/* ---------- diagnose ---------- */
-analyzeBtn.addEventListener("click", async ()=>{
-  if(!selectedFile) return;
-  if(!selectedCrop){ showError(UI_STR.pickCropFirstTitle[LANG], UI_STR.pickCropFirstBodyDiagnose[LANG]); return; }
-  error.classList.remove("show");
-  result.classList.remove("show");
-  analyzeBtn.disabled = true;
-  frame.parentElement.classList.add("analyzing");
-  setStatus(UI_STR.statusLocating[LANG]);
-
-  const { lat, lon } = await getCoords();
-
-  const form = new FormData();
-  form.append("file", selectedFile);
-  form.append("crop", selectedCrop);                 // <-- narrows prediction to this crop
-  if(lat != null){ form.append("lat", lat); form.append("lon", lon); }
-
-  setStatus(UI_STR.statusAnalysing[LANG]);
-  const slow = setTimeout(()=> setStatus(UI_STR.statusColdStart[LANG]), 4500);
-
-  try{
-    const res = await fetch(`${API_BASE}/predict`, { method:"POST", body:form });
-    clearTimeout(slow);
-    if(!res.ok){
-      const detail = await res.json().catch(()=>({}));
-      throw new Error(detail.detail || `Server responded ${res.status}`);
-    }
-    const data = await res.json();
-    lastResult = data; lastHadLocation = lat != null;
-    lastLat = lat != null ? lat : null; lastLon = lon != null ? lon : null;
-    weatherRetryState = "idle";
-    renderResult(data, lat != null);
-  }catch(err){
-    clearTimeout(slow);
-    const offline = !navigator.onLine;
-    showError(
-      offline ? UI_STR.offlineTitle[LANG] : UI_STR.serverErrTitle[LANG],
-      offline ? UI_STR.offlineBody[LANG] : UI_STR.serverErrBody[LANG]
-    );
-  }finally{
-    analyzeBtn.disabled = false;
-    frame.parentElement.classList.remove("analyzing");
-    setStatus("");
-  }
-});
-
-function setStatus(t){ status.textContent=t; status.classList.toggle("show", !!t); }
-function showError(title, body){
-  error.innerHTML = `<b>${title}</b>${body}`;
-  error.classList.add("show");
-  result.classList.remove("show");
-}
-
-/* ---------- render ---------- */
-const WMO = {0:["☀️","Clear"],1:["🌤️","Mainly clear"],2:["⛅","Partly cloudy"],3:["☁️","Overcast"],
-  45:["🌫️","Fog"],48:["🌫️","Fog"],51:["🌦️","Light drizzle"],53:["🌦️","Drizzle"],55:["🌦️","Heavy drizzle"],
-  61:["🌧️","Light rain"],63:["🌧️","Rain"],65:["🌧️","Heavy rain"],66:["🌧️","Freezing rain"],67:["🌧️","Freezing rain"],
-  71:["🌨️","Light snow"],73:["🌨️","Snow"],75:["🌨️","Heavy snow"],80:["🌦️","Showers"],81:["🌧️","Showers"],82:["🌧️","Heavy showers"],
-  95:["⛈️","Thunderstorm"],96:["⛈️","Thunderstorm"],99:["⛈️","Thunderstorm"]};
-const WMO_HI = {"Clear":"साफ","Mainly clear":"मुख्यतः साफ","Partly cloudy":"आंशिक बादल","Overcast":"बादल छाए",
-  "Fog":"कोहरा","Light drizzle":"हल्की बूंदाबांदी","Drizzle":"बूंदाबांदी","Heavy drizzle":"तेज़ बूंदाबांदी",
-  "Light rain":"हल्की बारिश","Rain":"बारिश","Heavy rain":"भारी बारिश","Freezing rain":"हिमकारी वर्षा",
-  "Light snow":"हल्की बर्फ","Snow":"बर्फ","Heavy snow":"भारी बर्फ","Showers":"बौछारें","Heavy showers":"तेज़ बौछारें",
-  "Thunderstorm":"आंधी-तूफान"};
-
-// The backend always answers in English (agro_context.py); these dictionaries translate
-// its fixed, enumerable vocabulary — disease/crop/soil names and advisory sentences —
-// client-side, so the model/API stay language-agnostic per aaryan's call.
-const DISEASE_HI = {
-  "Common rust":"सामान्य रतुआ", "Healthy":"स्वस्थ", "Northern leaf blight":"उत्तरी पत्ती झुलसा",
-  "Early blight":"अगेती झुलसा", "Late blight":"पछेती झुलसा", "Bacterial blight":"जीवाणु झुलसा",
-  "Rice blast":"धान का ब्लास्ट रोग", "Mosaic":"मोज़ेक", "Red rot":"लाल सड़न",
-  "Black (stem) rust":"काला (तना) रतुआ", "Brown (leaf) rust":"भूरा (पत्ती) रतुआ",
-  "Leaf blight":"पत्ती झुलसा", "Yellow (stripe) rust":"पीला (धारी) रतुआ",
-};
-const SOIL_TYPE_HI = {
-  "Alluvial soil":"जलोढ़ मिट्टी", "Arid / sandy soil":"शुष्क/बलुई मिट्टी",
-  "Black (regur / vertisol) soil":"काली (रेगुर) मिट्टी", "Red soil":"लाल मिट्टी",
-  "Laterite soil":"लैटेराइट मिट्टी", "Forest / hill soil":"वन/पहाड़ी मिट्टी",
-};
-const SOIL_TEXTURE_HI = {
-  "sandy loam to clay loam":"बलुई दोमट से चिकनी दोमट", "sandy, low organic matter":"बलुई, कम जैविक पदार्थ",
-  "clayey, high montmorillonite":"चिकनी, उच्च मॉन्टमोरिलोनाइट", "sandy loam to loam":"बलुई दोमट से दोमट",
-  "gravelly loam, leached":"कंकरीली दोमट, निक्षालित", "loam, variable, often stony":"दोमट, परिवर्तनशील, अक्सर पथरीली",
-};
-const SOIL_DRAINAGE_HI = {
-  "moderate to good":"मध्यम से अच्छी", "rapid (poor water retention)":"तेज़ (कम जल धारण)",
-  "poor when wet, cracks when dry":"गीले में खराब, सूखे में दरारें", "good":"अच्छी",
-  "good but nutrient-poor":"अच्छी लेकिन पोषक तत्व-रहित", "good (slope runoff)":"अच्छी (ढलान अपवाह)",
-};
-const ADVISORY_HI = {
-  "Current weather strongly favours this disease — treat promptly (within ~48 hours).":
-    "मौजूदा मौसम इस रोग के लिए अत्यधिक अनुकूल है — जल्द (लगभग 48 घंटे में) उपचार करें।",
-  "Weather is moderately favourable for spread — scout daily and be ready to treat.":
-    "मौसम रोग फैलने के लिए मध्यम रूप से अनुकूल है — रोज़ाना खेत देखें और उपचार के लिए तैयार रहें।",
-  "Weather is currently unfavourable for rapid spread, but treat visible infection to be safe.":
-    "मौसम फिलहाल तेज़ी से फैलने के अनुकूल नहीं है, फिर भी दिख रहे संक्रमण का उपचार करें।",
-  "Conditions are hot and dry — spray in the early morning or evening to avoid evaporation and leaf scorch.":
-    "मौसम गर्म और सूखा है — वाष्पीकरण और पत्ती झुलसने से बचने के लिए सुबह जल्दी या शाम को छिड़काव करें।",
-  "Soil here is heavy black/clay with poor drainage — in this wet spell, improve field drainage and avoid over-irrigation to limit waterlogging and root rot.":
-    "यहां की मिट्टी भारी काली/चिकनी है जिसमें जल निकासी कम है — इस बरसात में खेत की जल निकासी सुधारें और अधिक सिंचाई से बचें ताकि जलभराव और जड़ सड़न न हो।",
-  "Sandy soil drains fast and holds little water — keep moisture even and avoid water stress, which weakens the plant's defences.":
-    "बलुई मिट्टी जल्दी सूख जाती है और पानी कम रोकती है — नमी बनाए रखें और पानी की कमी से बचें, जिससे पौधे की रोग-प्रतिरोधक क्षमता कमजोर होती है।",
-  "Laterite soil is acidic and leached — correct pH with lime and add organics to keep plants vigorous against infection.":
-    "लैटेराइट मिट्टी अम्लीय और निक्षालित होती है — चूना डालकर pH ठीक करें और जैविक खाद डालें ताकि पौधे संक्रमण के प्रति मजबूत रहें।",
-  "No disease detected — keep scouting your field, especially after rain.":
-    "कोई रोग नहीं मिला — अपने खेत की निगरानी जारी रखें, खासकर बारिश के बाद।",
-  "Continue routine scouting after rain or high-humidity spells, when most diseases establish.":
-    "बारिश या अधिक नमी के दौर के बाद नियमित निगरानी जारी रखें, क्योंकि तभी अधिकतर रोग शुरू होते हैं।",
-  "Treat the affected area and remove badly infected leaves.":
-    "प्रभावित हिस्से का उपचार करें और बुरी तरह संक्रमित पत्तियों को हटा दें।",
-  "Allow location and diagnose again for steps matched to your soil and weather.":
-    "अपनी मिट्टी और मौसम के अनुसार सलाह पाने के लिए स्थान की अनुमति दें और दोबारा जांच करें।",
-  "Guidance is indicative. Confirm dose and product with your local Krishi Vigyan Kendra (KVK) or agriculture extension officer before spraying.":
-    "यह सलाह केवल संकेतात्मक है। छिड़काव से पहले मात्रा और उत्पाद की पुष्टि अपने स्थानीय कृषि विज्ञान केंद्र (KVK) या कृषि विस्तार अधिकारी से करें।",
-  // soil-profile "notes" — always appended as the last advisory line (backend/agro_context.py SOIL_PROFILES)
-  "Fertile and responsive to fertiliser; suits most field crops.":
-    "उपजाऊ और खाद के प्रति संवेदनशील; अधिकतर फसलों के लिए उपयुक्त।",
-  "Holds little water; needs frequent light irrigation. Watch for salinity build-up.":
-    "पानी कम रोकती है; बार-बार हल्की सिंचाई चाहिए। लवणता बढ़ने पर नज़र रखें।",
-  "High water retention; prone to waterlogging in heavy rain, which raises root-rot risk.":
-    "पानी अधिक रोकती है; भारी बारिश में जलभराव की संभावना, जिससे जड़ सड़न का खतरा बढ़ता है।",
-  "Lower fertility; benefits from organic matter, nitrogen and zinc correction.":
-    "कम उर्वरता; जैविक पदार्थ, नाइट्रोजन और ज़िंक सुधार से लाभ होता है।",
-  "Heavily leached; liming and organic amendments improve productivity.":
-    "अत्यधिक निक्षालित; चूना और जैविक खाद डालने से उत्पादकता बढ़ती है।",
-  "Thin on slopes and erosion-prone; terracing and mulching help retain moisture.":
-    "ढलानों पर पतली और कटाव-प्रवण; सीढ़ीदार खेती और मल्चिंग से नमी बनी रहती है।",
-  // per-disease baseline management (backend/agro_context.py DISEASE_INFO)
-  "Apply a protectant fungicide (e.g. mancozeb) at first pustules; favour resistant hybrids next season.":
-    "पहले फफोले दिखते ही सुरक्षात्मक फफूंदनाशी (जैसे मैंकोज़ेब) डालें; अगले सीज़न रोग-प्रतिरोधी किस्में लगाएं।",
-  "Remove lower infected leaves, rotate crops, and use a triazole/strobilurin fungicide if lesions spread up the plant.":
-    "नीचे की संक्रमित पत्तियां हटाएं, फसल चक्र अपनाएं, और यदि धब्बे ऊपर फैलें तो ट्राइज़ोल/स्ट्रोबिल्यूरिन फफूंदनाशी उपयोग करें।",
-  "Maintain plant vigour (avoid N stress); spray mancozeb/chlorothalonil on a 7-10 day schedule once lesions appear.":
-    "पौधे की मजबूती बनाए रखें (नाइट्रोजन की कमी न होने दें); धब्बे दिखने पर हर 7-10 दिन में मैंकोज़ेब/क्लोरोथैलोनिल का छिड़काव करें।",
-  "Act fast — this spreads explosively. Use a systemic fungicide (cymoxanil/metalaxyl + mancozeb); destroy infected foliage.":
-    "तुरंत कार्रवाई करें — यह तेज़ी से फैलता है। सिस्टमिक फफूंदनाशी (साइमोक्सानिल/मेटालैक्सिल + मैंकोज़ेब) उपयोग करें; संक्रमित पत्तियों को नष्ट करें।",
-  "No effective foliar cure — reduce nitrogen, drain the field, remove infected debris, and plant resistant varieties next season.":
-    "कोई प्रभावी छिड़काव इलाज नहीं है — नाइट्रोजन कम करें, खेत से पानी निकालें, संक्रमित अवशेष हटाएं, और अगले सीज़न प्रतिरोधी किस्में लगाएं।",
-  "Cut back nitrogen, keep consistent water, and apply tricyclazole at early lesion/neck stage.":
-    "नाइट्रोजन कम करें, पानी की मात्रा स्थिर रखें, और शुरुआती धब्बे/गर्दन चरण में ट्राइसाइक्लाज़ोल डालें।",
-  "Virus is aphid-spread and seed-borne — rogue out infected clumps, control aphids, and plant only certified disease-free setts. Fungicides do not work.":
-    "यह वायरस माहू (एफिड) और बीज से फैलता है — संक्रमित झुंड हटाएं, माहू नियंत्रित करें, और केवल प्रमाणित रोग-मुक्त सेट लगाएं। फफूंदनाशी असर नहीं करते।",
-  "Uproot and burn affected clumps, improve drainage, and use resistant varieties with hot-water-treated setts.":
-    "प्रभावित झुंडों को उखाड़कर जलाएं, जल निकासी सुधारें, और गर्म पानी से उपचारित सेट व प्रतिरोधी किस्में उपयोग करें।",
-  "Spray propiconazole/tebuconazole at first sign; grow resistant varieties — this rust can collapse a crop late in the season.":
-    "पहला संकेत मिलते ही प्रोपिकोनाज़ोल/टेबुकोनाज़ोल छिड़कें; प्रतिरोधी किस्में लगाएं — यह रतुआ सीज़न के अंत में फसल को बर्बाद कर सकता है।",
-  "Apply a triazole fungicide at early pustule stage; monitor closely as it can shift toward stem rust look-alikes.":
-    "शुरुआती फफोले चरण में ट्राइज़ोल फफूंदनाशी डालें; ध्यान से निगरानी करें क्योंकि यह तना रतुआ जैसा दिखने लगता है।",
-  "Use balanced nutrition, seed treatment, and mancozeb/propiconazole sprays; rotate away from cereals.":
-    "संतुलित पोषण, बीज उपचार, और मैंकोज़ेब/प्रोपिकोनाज़ोल छिड़काव करें; अनाज वाली फसलों से चक्र बदलें।",
-  "Spray propiconazole promptly — yellow rust thrives in cool humid Haryana winters and spreads fast across fields.":
-    "तुरंत प्रोपिकोनाज़ोल छिड़कें — पीला रतुआ हरियाणा की ठंडी नम सर्दियों में तेज़ी से पनपता और फैलता है।",
-};
-// templated sentences that interpolate a value — matched by regex, rebuilt in Hindi with the same value
-const ADVISORY_HI_TEMPLATES = [
-  { re: /^Rain \(~([\d.]+) mm\) is expected in the next 48 h/,
-    hi: (m)=> `अगले 48 घंटों में लगभग ${m[1]} मिमी बारिश होने की संभावना है — रेन-फास्ट/सिस्टमिक उत्पाद उपयोग करें या बारिश थमने के तुरंत बाद छिड़काव करें ताकि वह धुल न जाए।` },
-  { re: /^No disease detected on this (\w[\w\s]*) sample/,
-    hi: (m)=> `इस ${cropLabel(capitalize(m[1]))} के नमूने पर कोई रोग नहीं मिला — निगरानी जारी रखें।` },
-];
-function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-function translateAdvisory(line){
-  if(LANG !== "hi") return line;
-  if(ADVISORY_HI[line]) return ADVISORY_HI[line];
-  for(const t of ADVISORY_HI_TEMPLATES){
-    const m = line.match(t.re);
-    if(m) return t.hi(m);
-  }
-  return line;   // no known translation — fall back to English rather than hide it
-}
-function translateDiseaseName(name){ return LANG === "hi" ? (DISEASE_HI[name] || name) : name; }
-function translateCropName(name){ return LANG === "hi" ? (CROP_HI[name] || name) : name; }
-
-function renderResult(data, hadLocation){
-  const healthy = !!data.healthy;
-  const ctx = data.context;
-  const cropName = (ctx && ctx.crop) || selectedCrop || cropFromLabel(data.disease);
-  $("cropEyebrow").textContent = cropName ? translateCropName(cropName) : UI_STR.cropEyebrowDefault[LANG];
-  $("diseaseName").textContent = prettyDisease(data);
-  const badge = $("badge");
-  badge.textContent = LANG === "hi" ? (healthy ? "स्वस्थ" : "रोग मिला") : (healthy ? "Healthy" : "Disease found");
-  badge.className = "badge " + (healthy ? "healthy" : "disease");
-
-  let conf = Number(data.confidence) || 0;
-  if(conf > 0 && conf <= 1) conf = conf * 100;   // tolerate either 0-1 or 0-100; backend sends 0-100
-  conf = Math.round(conf);
-  $("confPct").textContent = conf + "%";
-  setTimeout(()=> $("confFill").style.width = conf + "%", 60);
-
-  // honesty note: confidence is within the chosen crop when gating was applied
-  const nb = $("narrowed");
-  if(data.crop_filtered && (ctx?.crop || selectedCrop)){
-    nb.style.display = "block";
-    nb.innerHTML = `${UI_STR.compared[LANG]} <b>${esc(translateCropName(ctx?.crop || selectedCrop))}</b> ${UI_STR.diseases[LANG]}`;
-  } else { nb.style.display = "none"; }
-
-  // pressure
-  const pBlock = $("pressureBlock");
-  if(ctx && ctx.disease_pressure && !["n/a","unknown"].includes(ctx.disease_pressure)){
-    pBlock.style.display = "flex";
-    renderPressure(ctx.disease_pressure);
-  } else { pBlock.style.display = "none"; }
-
-  // chips
-  renderChips(ctx);
-
-  // advisory
-  const steps = $("steps");
-  steps.innerHTML = "";
-  const lines = (ctx && ctx.advisory) ? ctx.advisory
-              : (healthy ? ["No disease detected — keep scouting your field, especially after rain."]
-                         : ["Treat the affected area and remove badly infected leaves.","Allow location and diagnose again for steps matched to your soil and weather."]);
-  lines.forEach(t=>{ const li=document.createElement("li"); li.textContent=translateAdvisory(t); steps.appendChild(li); });
-
-  // location prompt
-  $("locPrompt").style.display = (!hadLocation && !healthy) ? "flex" : "none";
-
-  // alternatives (top3)
-  renderAlts(data.top3);
-
-  // disclaimer
-  const disclaimerText = (ctx && ctx.disclaimer) ||
-    "Guidance is indicative. Confirm dose and product with your local KVK or agriculture extension officer before spraying.";
-  $("disclaimer").textContent = translateAdvisory(disclaimerText);
-
-  result.classList.add("show");
-  result.scrollIntoView({behavior:"smooth", block:"start"});
-}
-
-const PRESSURE_LABEL = {
-  low:{en:"Low disease pressure", hi:"कम रोग दबाव"},
-  moderate:{en:"Moderate pressure", hi:"मध्यम दबाव"},
-  high:{en:"High disease pressure", hi:"उच्च रोग दबाव"},
-};
-const PRESSURE_NOTE = {
-  low:{en:"Weather is unfavourable for fast spread", hi:"मौसम तेज़ी से फैलने के अनुकूल नहीं है"},
-  moderate:{en:"Watch the field daily", hi:"रोज़ाना खेत की निगरानी करें"},
-  high:{en:"Conditions favour spread — act soon", hi:"स्थितियां फैलाव के अनुकूल हैं — जल्द कार्रवाई करें"},
-};
-function renderPressure(level){
-  const segs = $("pmeter").children;
-  const map = {low:1, moderate:2, high:3};
-  const cls = {low:"on-low", moderate:"on-mod", high:"on-high"};
-  const n = map[level] || 0;
-  [...segs].forEach((s,i)=> s.className = "pseg" + (i < n ? " " + cls[level] : ""));
-  $("pressureLabel").textContent = (PRESSURE_LABEL[level] && PRESSURE_LABEL[level][LANG]) || level;
-  $("pressureNote").textContent = (PRESSURE_NOTE[level] && PRESSURE_NOTE[level][LANG]) || "";
-}
-
-const CHIP_STR = {
-  soil: {en:"Soil", hi:"मिट्टी"}, weather: {en:"Weather", hi:"मौसम"},
-  humidityRain: {en:"Humidity · rain", hi:"नमी · वर्षा"}, drainage: {en:"drainage", hi:"जल निकासी"},
-  near: {en:"near", hi:"निकट"}, mmIn48h: {en:"mm in 48h", hi:"मिमी (48 घंटे में)"},
-};
-function renderChips(ctx){
-  const chips = $("chips");
-  chips.innerHTML = "";
-  const hasWeather = !!(ctx && ctx.weather && ctx.weather.temp_c != null);
-  if(!ctx){ chips.style.display="none"; updateRetryWeatherButton(hasWeather); return; }
-  chips.style.display="grid";
-
-  if(ctx.soil){
-    const s = ctx.soil;
-    const type = LANG === "hi" ? (SOIL_TYPE_HI[s.type] || s.type) : s.type;
-    const texture = LANG === "hi" ? (SOIL_TEXTURE_HI[s.texture] || s.texture) : s.texture;
-    const drainage = LANG === "hi" ? (SOIL_DRAINAGE_HI[s.drainage] || s.drainage) : s.drainage;
-    chips.insertAdjacentHTML("beforeend", `
-      <div class="chip wide">
-        <div class="k">${iconSoil()} ${CHIP_STR.soil[LANG]}</div>
-        <div class="v">${esc(type)}</div>
-        <div class="meta">${esc(texture)} · ${esc(drainage)} ${CHIP_STR.drainage[LANG]}${s.state ? " · "+CHIP_STR.near[LANG]+" "+esc(s.nearest_reference)+", "+esc(s.state) : ""}</div>
-      </div>`);
-  }
-  const w = ctx.weather;
-  if(w && w.temp_c != null){
-    const code = WMO[w.weather_code] || ["🌡️",""];
-    const desc = LANG === "hi" ? (WMO_HI[code[1]] || code[1]) : code[1];
-    chips.insertAdjacentHTML("beforeend", `
-      <div class="chip">
-        <div class="k">${iconSun()} ${CHIP_STR.weather[LANG]}</div>
-        <div class="v">${Math.round(w.temp_c)}°C <small>${code[0]} ${esc(desc)}</small></div>
-      </div>
-      <div class="chip">
-        <div class="k">${iconDrop()} ${CHIP_STR.humidityRain[LANG]}</div>
-        <div class="v">${w.humidity_pct != null ? Math.round(w.humidity_pct)+"%" : "—"} <small>${(w.rain_next_48h_mm||0)} ${CHIP_STR.mmIn48h[LANG]}</small></div>
-      </div>`);
-  }
-  if(!chips.children.length) chips.style.display="none";
-  updateRetryWeatherButton(hasWeather);
-}
-
-function updateRetryWeatherButton(hasWeather){
-  const btn = $("retryWeatherBtn");
-  const canRetry = !hasWeather && lastLat != null && lastLon != null;
-  btn.style.display = canRetry ? "block" : "none";
-  if(!canRetry) return;
-  const label = weatherRetryState === "loading" ? UI_STR.retryWeatherLoading[LANG]
-              : weatherRetryState === "failed" ? UI_STR.retryWeatherFailed[LANG]
-              : UI_STR.retryWeatherLabel[LANG];
-  $("retryWeatherLabel").textContent = label;
-  btn.disabled = weatherRetryState === "loading";
-}
-
-$("retryWeatherBtn").addEventListener("click", async ()=>{
-  if(lastLat == null || lastLon == null) return;
-  weatherRetryState = "loading";
-  updateRetryWeatherButton(false);
-  try{
-    const res = await fetch(`${API_BASE}/weather?lat=${lastLat}&lon=${lastLon}`);
-    if(!res.ok) throw new Error("weather retry failed");
-    const data = await res.json();
-    if(lastResult){
-      lastResult.context = lastResult.context || {};
-      lastResult.context.weather = data.weather;
-    }
-    weatherRetryState = "idle";
-    renderChips(lastResult ? lastResult.context : null);
-  }catch(e){
-    weatherRetryState = "failed";
-    updateRetryWeatherButton(false);
-  }
-});
-
-function renderAlts(top3){
-  const block = $("altsBlock"), wrap = $("alts");
-  if(!Array.isArray(top3) || top3.length <= 1){ block.style.display="none"; return; }
-  wrap.innerHTML = "";
-  top3.slice(1,3).forEach(a=>{
-    let pc = Number(a.confidence) || 0; if(pc>0&&pc<=1) pc*=100; pc=Math.round(pc);
-    wrap.insertAdjacentHTML("beforeend",
-      `<div class="alt"><span class="nm">${esc(translateLabel(a.label))}</span><span class="bar"><i style="width:${pc}%"></i></span><span class="pc">${pc}%</span></div>`);
-  });
-  block.style.display="block";
-}
-
-/* helpers */
-function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function cropFromLabel(l){ if(!l) return ""; const p=String(l).split(/[ _]/); return p[0]; }
-// backend labels look like "Crop — Disease name"; translate each half independently
-function translateLabel(label){
-  if(LANG !== "hi" || !label) return label || "";
-  const parts = String(label).split(" — ");
-  if(parts.length !== 2) return label;
-  return `${translateCropName(parts[0])} — ${translateDiseaseName(parts[1])}`;
-}
-function prettyDisease(data){
-  if(data.context && data.context.disease) return translateDiseaseName(data.context.disease);
-  const l = data.disease || UI_STR.unknown[LANG];
-  return translateLabel(String(l).replace(/_/g," "));
-}
-function iconSoil(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17h18M3 13h18M5 9h14"/><path d="M12 3v4"/></svg>`; }
-function iconSun(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>`; }
-function iconDrop(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5S5 10 5 14.5a7 7 0 0 0 14 0C19 10 12 2.5 12 2.5Z"/></svg>`; }
 </script>
 </body>
 </html>
